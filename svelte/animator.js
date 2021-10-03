@@ -61,11 +61,6 @@ export function setCanvas(node) {
     ctx.fillRect(0, 0, w, h);
 }
 
-function layer() {
-    ctx.fillStyle = 'hsla(240,6%,15%,.01)';
-    ctx.fillRect(0, 0, w, h);
-}
-
 /**@param {Complex} c */
 function draw(c) {
     ctx.fillRect(
@@ -81,7 +76,8 @@ function frame() {
         av_frame_time.set((time/counter).toFixed(3));
         time = counter = 0;
     }
-    layer();
+    ctx.fillStyle = 'hsla(240,6%,15%,.01)';
+    ctx.fillRect(0, 0, w, h);
     var temp;
     for(i=0; i<len; i++) {
         lives[i]++;

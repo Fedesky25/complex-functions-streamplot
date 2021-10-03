@@ -35,7 +35,6 @@
     .container {
         display: block;
         position: relative;
-        padding-left: 3rem;
     }
     button {
         display: block;
@@ -99,7 +98,7 @@
         border-radius: .3rem;
     }
     .option:hover {
-        background-color: hsl(240, 15%, 25%);
+        background-color: hsl(240, 6%, 25%);
     }
     .option + h3 { margin-top: 1.2rem; }
 </style>

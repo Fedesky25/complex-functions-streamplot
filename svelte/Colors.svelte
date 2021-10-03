@@ -35,14 +35,13 @@
 
 <style>
     .container {
-        grid-area: east;
+        grid-area: colors;
         justify-self: end;
         display: grid;
         grid-template-columns: 1fr auto;
         /* grid-template-rows: auto 1fr auto;
         row-gap: 2rem; */
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+        padding: 2rem;
     }
     /* .num {
         grid-row: 1;

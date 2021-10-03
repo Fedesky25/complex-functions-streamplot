@@ -105,7 +105,7 @@
 
 <style>
     .canvas-container {
-        grid-area: center;
+        grid-area: canvas;
         outline: 1px solid #ccc;
         cursor: grab;
         position: relative;
@@ -132,7 +132,7 @@
     }
 
     .x-labels {
-        grid-area: south;
+        grid-area: x-ticks;
         align-self: start;
         display: flex;
         justify-content: space-between;
@@ -154,7 +154,7 @@
     }
 
     .y-labels {
-        grid-area: west;
+        grid-area: y-ticks;
         justify-self: end;
         display: flex;
         flex-direction: column-reverse;

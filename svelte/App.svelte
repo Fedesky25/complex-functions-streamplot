@@ -13,15 +13,8 @@
 <Canvas />
 <Colors />
 <button on:click={e => e.target.textContent = toggle() ? 'Pause' : 'Play'}>Play</button>
-
-<!-- <button class="SC">Play</button> -->
 <VarsMenu />
 <SettingMenu />
-<!-- <div class="overlay" 
-    title="Close menus" 
-    class:show={show_vars} 
-    on:click={() => show_vars = false}>
-</div> -->
 <div class="time">{$av_frame_time} ms</div>
 
 
@@ -37,39 +30,19 @@
     :global(html) { height: 100%; }
     :global(body) {
         display: grid;
-        grid-template-columns: minmax(6rem, 1fr) auto minmax(6rem, 1fr);
+        /* grid-template-columns: minmax(6rem, 1fr) auto minmax(6rem, 1fr); */
         grid-template-rows: 1fr auto 1fr;
+        grid-template-columns: minmax(40ch, 1fr) 7rem  auto minmax(10rem, 1fr);
         grid-template-areas: 
-            "NW   north  NE"
-            "west center east"
-            "SW   south  SE";
+            "vars _1      play    _2"
+            "vars y-ticks canvas   colors"
+            "vars _3      x-ticks time";
         height: 100%;
         background-color: var(--bg);
         color: white;
-        padding: 1.5rem;
     }
-
-    /* .overlay {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        z-index: 10;
-        height: 0;
-        width: 0;
-        opacity: 0;
-        background-color: black;
-        transition: opacity .2s;
-    }
-    .overlay.show {
-        height: 100%;
-        width: 100%;
-        opacity: .4;
-    } */
-
     button {
-        grid-area: north;
+        grid-area: play;
         place-self: center;
         font-size: 1.1em;
         color: white;
@@ -82,14 +55,10 @@
         background-color: var(--bg);
     }
     button:focus {outline: none;}
-    /* .SC {
-        grid-area: south;
-        place-self: end center;
-    } */
     .time {
-        grid-area: SE;
+        grid-area: time;
         color: #ccc;
         place-self: end;
+        padding: 1.5rem;
     }
-
 </style>

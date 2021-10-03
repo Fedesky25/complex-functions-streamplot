@@ -70,6 +70,10 @@ export default {
             label: 'x<sup>3</sup>e<sup>x</sup>',
             fn: c => tm[0].eq(c).exponentiate().mul$(c, c, c),
         },
+        {
+            label: 'x<sup>r</sup>e<sup>x</sup>',
+            fn: c => tm[0].eq(c).exponentiate().mul(tm[1].eq(c).exp_r(otherVars.r)),
+        },
     ],
     logarithms: [
         {

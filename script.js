@@ -481,15 +481,15 @@ var app = (function () {
             return this;
         }
         toString() {
-            if(this.real == 0) return this.imag ? nf(this.imag)+'i' : '0';
-            if(this.imag == 0) return nf(this.real);
-            let r = ['(', nf(this.real)];
+            if(this.real == 0) return this.imag ? nf$1(this.imag)+'i' : '0';
+            if(this.imag == 0) return nf$1(this.real);
+            let r = ['(', nf$1(this.real)];
             if(this.imag > 0) {
                 if(this.imag === 1) r.push('+i)');
-                else r.push('+', nf(this.imag), 'i)');
+                else r.push('+', nf$1(this.imag), 'i)');
             } else {
                 if(this.imag === -1) r.push('-i)');
-                else r.push(nf(this.imag), 'i)');
+                else r.push(nf$1(this.imag), 'i)');
             }
             return r.join('');
         }
@@ -497,6 +497,7 @@ var app = (function () {
         static ModArg(mod, arg) { return new Complex$1(mod * Math.cos(arg), mod * Math.sin(arg)) }
     }
     window.Complex = Complex$1;
+    function nf$1(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(4) }
 
     const canvas_width = 900;
     const canvas_height = 600;
@@ -758,6 +759,7 @@ var app = (function () {
         static ModArg(mod, arg) { return new Complex(mod * Math.cos(arg), mod * Math.sin(arg)) }
     }
     window.Complex = Complex;
+    function nf(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(4) }
 
     var iv = Object.freeze({
         gap: .12,
@@ -895,6 +897,7 @@ var app = (function () {
         const numX = Math.floor(canvas_width/gap);
         const numY = Math.floor(canvas_height/gap);
         const res = new Array((numX+1)*(numY+1));
+        console.log(`Particle number: ${numX+1}\xd7${numY+1} = ${(numX+1)*(numY+1)}`);
         let i, j;
         for(i=0; i<=numY; i++) 
             for(j=0; j<=numX; j++)
@@ -1022,11 +1025,6 @@ var app = (function () {
         ctx.fillRect(0, 0, canvas_width, canvas_height);
     }
 
-    function layer() {
-        ctx.fillStyle = 'hsla(240,6%,15%,.01)';
-        ctx.fillRect(0, 0, canvas_width, canvas_height);
-    }
-
     /**@param {Complex} c */
     function draw(c) {
         ctx.fillRect(
@@ -1042,7 +1040,8 @@ var app = (function () {
             av_frame_time.set((time/counter).toFixed(3));
             time = counter = 0;
         }
-        layer();
+        ctx.fillStyle = 'hsla(240,6%,15%,.01)';
+        ctx.fillRect(0, 0, canvas_width, canvas_height);
         var temp;
         for(i=0; i<len; i++) {
             lives[i]++;
@@ -1118,7 +1117,7 @@ var app = (function () {
     		c() {
     			div = element("div");
     			attr(div, "data-label", div_data_label_value = /*l*/ ctx[17]);
-    			attr(div, "class", "svelte-1hqmtxu");
+    			attr(div, "class", "svelte-1wgwtn8");
     		},
     		m(target, anchor) {
     			insert(target, div, anchor);
@@ -1143,7 +1142,7 @@ var app = (function () {
     		c() {
     			div = element("div");
     			attr(div, "data-label", div_data_label_value = /*l*/ ctx[17]);
-    			attr(div, "class", "svelte-1hqmtxu");
+    			attr(div, "class", "svelte-1wgwtn8");
     		},
     		m(target, anchor) {
     			insert(target, div, anchor);
@@ -1212,22 +1211,22 @@ var app = (function () {
 
     			attr(canvas, "width", canvas_width);
     			attr(canvas, "height", canvas_height);
-    			attr(canvas, "class", "svelte-1hqmtxu");
-    			attr(div0, "class", "x-axis svelte-1hqmtxu");
+    			attr(canvas, "class", "svelte-1wgwtn8");
+    			attr(div0, "class", "x-axis svelte-1wgwtn8");
 
     			attr(div0, "style", div0_style_value = /*xAxisTop*/ ctx[2] > 0 && /*xAxisTop*/ ctx[2] < canvas_height
     			? `top: ${/*xAxisTop*/ ctx[2]}px;`
     			: 'display: none');
 
-    			attr(div1, "class", "y-axis svelte-1hqmtxu");
+    			attr(div1, "class", "y-axis svelte-1wgwtn8");
 
     			attr(div1, "style", div1_style_value = /*yAxisLeft*/ ctx[3] > 0 && /*yAxisLeft*/ ctx[3] < canvas_width
     			? `left: ${/*yAxisLeft*/ ctx[3]}px;`
     			: 'display: none');
 
-    			attr(div2, "class", "canvas-container svelte-1hqmtxu");
-    			attr(div3, "class", "x-labels svelte-1hqmtxu");
-    			attr(div4, "class", "y-labels svelte-1hqmtxu");
+    			attr(div2, "class", "canvas-container svelte-1wgwtn8");
+    			attr(div3, "class", "x-labels svelte-1wgwtn8");
+    			attr(div4, "class", "y-labels svelte-1wgwtn8");
     		},
     		m(target, anchor) {
     			insert(target, div2, anchor);
@@ -1470,7 +1469,7 @@ var app = (function () {
     		c() {
     			div = element("div");
     			attr(div, "data-num", div_data_num_value = /*t*/ ctx[2].toPrecision(3));
-    			attr(div, "class", "svelte-71q2ns");
+    			attr(div, "class", "svelte-n0e2xn");
     		},
     		m(target, anchor) {
     			insert(target, div, anchor);
@@ -1509,10 +1508,10 @@ var app = (function () {
 
     			t = space();
     			div1 = element("div");
-    			attr(div0, "class", "labels svelte-71q2ns");
-    			attr(div1, "class", "bar svelte-71q2ns");
+    			attr(div0, "class", "labels svelte-n0e2xn");
+    			attr(div1, "class", "bar svelte-n0e2xn");
     			set_style(div1, "background", "linear-gradient(to bottom, " + /*gradient*/ ctx[0] + ")");
-    			attr(div2, "class", "container svelte-71q2ns");
+    			attr(div2, "class", "container svelte-n0e2xn");
     		},
     		m(target, anchor) {
     			insert(target, div2, anchor);
@@ -1948,6 +1947,10 @@ var app = (function () {
                 label: 'x<sup>3</sup>e<sup>x</sup>',
                 fn: c => tm[0].eq(c).exponentiate().mul$(c, c, c),
             },
+            {
+                label: 'x<sup>r</sup>e<sup>x</sup>',
+                fn: c => tm[0].eq(c).exponentiate().mul(tm[1].eq(c).exp_r(otherVars.r)),
+            },
         ],
         logarithms: [
             {
@@ -2011,7 +2014,7 @@ var app = (function () {
     	return {
     		c() {
     			div = element("div");
-    			attr(div, "class", "option svelte-1bf6d82");
+    			attr(div, "class", "option svelte-ikpdpr");
     		},
     		m(target, anchor) {
     			insert(target, div, anchor);
@@ -2058,7 +2061,7 @@ var app = (function () {
     			}
 
     			each_1_anchor = empty();
-    			attr(h3, "class", "svelte-1bf6d82");
+    			attr(h3, "class", "svelte-ikpdpr");
     		},
     		m(target, anchor) {
     			insert(target, h3, anchor);
@@ -2134,10 +2137,10 @@ var app = (function () {
     			}
 
     			html_tag.a = null;
-    			attr(button, "class", "svelte-1bf6d82");
-    			attr(div0, "class", "options svelte-1bf6d82");
+    			attr(button, "class", "svelte-ikpdpr");
+    			attr(div0, "class", "options svelte-ikpdpr");
     			attr(div0, "tabindex", "0");
-    			attr(div1, "class", "container svelte-1bf6d82");
+    			attr(div1, "class", "container svelte-ikpdpr");
     		},
     		m(target, anchor) {
     			insert(target, div1, anchor);
@@ -2468,8 +2471,6 @@ var app = (function () {
     	let t27;
     	let input2;
     	let input2_value_value;
-    	let t28;
-    	let button;
     	let current;
     	let mounted;
     	let dispose;
@@ -2511,38 +2512,34 @@ var app = (function () {
     			t18 = space();
     			div1 = element("div");
     			h33 = element("h3");
-    			h33.innerHTML = `real <span class="bold svelte-1igd3ky">r</span> =`;
+    			h33.innerHTML = `real <span class="bold svelte-15biooo">r</span> =`;
     			t22 = space();
     			input1 = element("input");
     			t23 = space();
     			h34 = element("h3");
-    			h34.innerHTML = `integer <span class="bold svelte-1igd3ky">k</span> =`;
+    			h34.innerHTML = `integer <span class="bold svelte-15biooo">k</span> =`;
     			t27 = space();
     			input2 = element("input");
-    			t28 = space();
-    			button = element("button");
-    			button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><use href="#function-svg"></use></svg>`;
-    			attr(h20, "class", "svelte-1igd3ky");
+    			attr(h20, "class", "svelte-15biooo");
     			attr(input0, "type", "checkbox");
-    			attr(h30, "class", "svelte-1igd3ky");
-    			attr(h31, "class", "svelte-1igd3ky");
-    			attr(h32, "class", "svelte-1igd3ky");
-    			attr(div0, "class", "centering-col svelte-1igd3ky");
-    			attr(h21, "class", "svelte-1igd3ky");
-    			attr(h33, "class", "svelte-1igd3ky");
+    			attr(h30, "class", "svelte-15biooo");
+    			attr(h31, "class", "svelte-15biooo");
+    			attr(h32, "class", "svelte-15biooo");
+    			attr(div0, "class", "centering-col svelte-15biooo");
+    			attr(h21, "class", "svelte-15biooo");
+    			attr(h33, "class", "svelte-15biooo");
     			attr(input1, "type", "number");
     			input1.value = input1_value_value = /*otherVars*/ ctx[0].r;
     			attr(input1, "step", "0.01");
-    			attr(input1, "class", "svelte-1igd3ky");
-    			attr(h34, "class", "svelte-1igd3ky");
+    			attr(input1, "class", "svelte-15biooo");
+    			attr(h34, "class", "svelte-15biooo");
     			attr(input2, "type", "number");
     			input2.value = input2_value_value = /*otherVars*/ ctx[0].k;
     			attr(input2, "step", "1");
-    			attr(input2, "class", "svelte-1igd3ky");
-    			attr(div1, "class", "aligned svelte-1igd3ky");
-    			attr(div2, "class", "container svelte-1igd3ky");
-    			toggle_class(div2, "show", /*show*/ ctx[1]);
-    			attr(button, "class", "toggle-btn svelte-1igd3ky");
+    			attr(input2, "class", "svelte-15biooo");
+    			attr(div1, "class", "aligned svelte-15biooo");
+    			attr(div2, "class", "container svelte-15biooo");
+    			toggle_class(div2, "show", show);
     		},
     		m(target, anchor) {
     			insert(target, div2, anchor);
@@ -2577,16 +2574,13 @@ var app = (function () {
     			append(div1, h34);
     			append(div1, t27);
     			append(div1, input2);
-    			insert(target, t28, anchor);
-    			insert(target, button, anchor);
     			current = true;
 
     			if (!mounted) {
     				dispose = [
-    					listen(input0, "change", /*change_handler*/ ctx[3]),
-    					listen(input1, "change", /*change_handler_1*/ ctx[4]),
-    					listen(input2, "change", /*change_k*/ ctx[2]),
-    					listen(button, "click", /*click_handler*/ ctx[5])
+    					listen(input0, "change", /*change_handler*/ ctx[2]),
+    					listen(input1, "change", /*change_handler_1*/ ctx[3]),
+    					listen(input2, "change", /*change_k*/ ctx[1])
     				];
 
     				mounted = true;
@@ -2599,10 +2593,6 @@ var app = (function () {
 
     			if (!current || dirty & /*otherVars*/ 1 && input2_value_value !== (input2_value_value = /*otherVars*/ ctx[0].k)) {
     				input2.value = input2_value_value;
-    			}
-
-    			if (dirty & /*show*/ 2) {
-    				toggle_class(div2, "show", /*show*/ ctx[1]);
     			}
     		},
     		i(local) {
@@ -2626,18 +2616,15 @@ var app = (function () {
     			destroy_component(complexinput0);
     			destroy_component(complexinput1);
     			destroy_component(complexinput2);
-    			if (detaching) detach(t28);
-    			if (detaching) detach(button);
     			mounted = false;
     			run_all(dispose);
     		}
     	};
     }
 
-    function instance$1($$self, $$props, $$invalidate) {
-    	let show = false;
+    let show = false;
 
-    	/**@param {Event} e*/
+    function instance$1($$self, $$props, $$invalidate) {
     	function change_k(e) {
     		const t = e.target;
     		let v = Number(t.value);
@@ -2647,8 +2634,7 @@ var app = (function () {
 
     	const change_handler = e => deg.set(e.target.checked);
     	const change_handler_1 = e => $$invalidate(0, otherVars.r = parseFloat(e.target.value), otherVars);
-    	const click_handler = () => $$invalidate(1, show = !show);
-    	return [otherVars, show, change_k, change_handler, change_handler_1, click_handler];
+    	return [otherVars, change_k, change_handler, change_handler_1];
     }
 
     class VarsMenu extends SvelteComponent {
@@ -2698,8 +2684,8 @@ var app = (function () {
     			div = element("div");
     			t6 = text(/*$av_frame_time*/ ctx[0]);
     			t7 = text(" ms");
-    			attr(button, "class", "svelte-1adx9jo");
-    			attr(div, "class", "time svelte-1adx9jo");
+    			attr(button, "class", "svelte-umd3kl");
+    			attr(div, "class", "time svelte-umd3kl");
     		},
     		m(target, anchor) {
     			mount_component(canvas, target, anchor);

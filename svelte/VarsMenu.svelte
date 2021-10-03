@@ -37,42 +37,17 @@
         <input type="number" value={otherVars.k} step="1" on:change={change_k}>
     </div>
 </div>
-<button class="toggle-btn" on:click={() => show = !show}>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><use href="#function-svg" /></svg>
-</button>
-<!-- <div class="overlay" class:show 
-    on:click={() => show = false}
-    title="Click to close variables panel">
-</div> -->
 
 <style>
     .container {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 20;
+        grid-area: vars;
+        height: 100%;
         max-height: 100%;
         overflow-y: auto;
         width: 40ch;
-        padding: 1.5rem;
         border-right: 3px solid var(--low);
-        box-shadow: 0 0 1.5rem #0004;
         background-color: var(--bg);
-        transition: clip-path .35s;
-        clip-path: inset(0 100% 0 0);
-    }
-    .container.show {
-        clip-path: inset(0 -2rem 0 0);
-    }
-    .toggle-btn {
-        top: 0;
-        left: 0;
-        border-top: 0;
-        border-left: 0;
-        border-right: 2px solid var(--low);
-        border-bottom: 2px solid var(--low);
-        border-bottom-right-radius: 1rem;
+        padding: 1.5rem;
     }
     h3 {
         font-size: 1.3rem;
@@ -109,22 +84,4 @@
         grid-column: 2;
         justify-self: start;
     }
-    /* .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 10;
-        width: 0;
-        height: 0;
-        background-color: black;
-        opacity: 0;
-        transition: opacity .35s;
-    }
-    .overlay.show {
-        width: 100%;
-        height: 100%;
-        opacity: .6;
-    } */
 </style>

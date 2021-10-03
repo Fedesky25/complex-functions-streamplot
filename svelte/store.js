@@ -128,6 +128,7 @@ export const initial_complexs = derived([px_gap, xAxis, yAxis], ([gap, x, y]) =>
     const numX = Math.floor(canvas_width/gap);
     const numY = Math.floor(canvas_height/gap);
     const res = new Array((numX+1)*(numY+1));
+    console.log(`Particle number: ${numX+1}\xd7${numY+1} = ${(numX+1)*(numY+1)}`);
     let i, j;
     for(i=0; i<=numY; i++) 
         for(j=0; j<=numX; j++)
