@@ -1,0 +1,19 @@
+{
+  "name": "streamfield",
+  "version": "1.0.0",
+  "description": "Streamfield visualization of complex functions",
+  "main": "none",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c -w"
+  },
+  "author": "Federico Guglielmi",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.5",
+    "rollup": "^2.57.0",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-svelte": "^7.1.0",
+    "svelte": "^3.43.0"
+  }
+}
