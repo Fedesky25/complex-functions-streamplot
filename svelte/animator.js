@@ -1,4 +1,4 @@
-import Complex from './Complex.js';
+import Complex from './complex.js';
 import { canvas_width as w, canvas_height as h } from './constants';
 import { 
     av_frame_time, xAxis, yAxis, scaleX, scaleY, initial_complexs,
