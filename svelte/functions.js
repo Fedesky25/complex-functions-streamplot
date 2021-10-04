@@ -37,11 +37,11 @@ export default {
             fn: c => tm[0].eq(c).exp_n(otherVars.k),
         },
         {
-            label: 'x<sup>r</sup><sub>k</sub>',
+            label: '(x<sub>k</sub>)<sup>r</sup>',
             fn: c => tm[0].eq(c).exp_r(otherVars.r, otherVars.k),
         },
         {
-            label: 'x<sup>z<sub>1</sub></sup><sub>k</sub>',
+            label: '(x<sub>k</sub>)<sup>z<sub>1</sub></sup>',
             fn: c => tm[0].eq(c).exp(z1, otherVars.k),
         },
     ],
@@ -63,7 +63,11 @@ export default {
             fn: c => tm[0].eq(c).mul(c).add(c).exponentiate(),
         },
         {
-            label: 'z<sub>1</sub><sup>x</sup>',
+            label: 'e<sup>(x<sub>k</sub>)<sup>r</sup></sup>',
+            fn: c => tm[0].eq(c).exp_r(otherVars.r, otherVars.k).exponentiate(),
+        },
+        {
+            label: '(z<sub>1, k</sub>)<sup>x</sup>',
             fn: c => tm[0].eq(z1).exp(c, otherVars.k),
         },
         {
@@ -87,6 +91,32 @@ export default {
         {
             label: 'ln(x + z<sub>1</sub>)<sub>k</sub>',
             fn: c => tm[0].eq(c).add(z1).logarize(otherVars.k),
+        },
+    ],
+    trigonometry: [
+        {
+            label: 'sin(x)',
+            fn: c => tm[0].eq(c).intoSine(),
+        },
+        {
+            label: 'cos(x)',
+            fn: c => tm[0].eq(c).intoCosine(),
+        },
+        {
+            label: 'sin(x + z<sub>1</sub>)',
+            fn: c => tm[0].eq(c).add(z1).intoSine(),
+        },
+        {
+            label: 'sin(z<sub>1</sub>x)',
+            fn: c => tm[0].eq(c).mul(z1).intoSine(),
+        },
+        {
+            label: 'cos(z<sub>1</sub>x)',
+            fn: c => tm[0].eq(c).mul(z1).intoCosine(),
+        },
+        {
+            label: 'z<sub>1</sub>sin(z<sub>2</sub>x)',
+            fn: c => tm[0].eq(c).add(z1).intoSine(),
         },
     ],
     miscellaneous: [

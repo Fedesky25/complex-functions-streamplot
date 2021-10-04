@@ -18,34 +18,6 @@ function writable_init(v) {
     return res;
 }
 
-// function boundedIntValue(min, max, initial) {
-//     let input, value = initial;
-//     const { subscribe, set, update } = writable(initial);
-//     function _set(v) {
-//         if(input) input.value = v;
-//         set(value = v);
-//     }
-//     return Object.freeze({
-//         subscribe,
-//         increment() { if(value < max) _set(value + 1) },
-//         decrement() { if(value > min) _set(value - 1) },
-//         reset() { _set(initial) },
-//         /**@param {HTMLInputElement} node */
-//         bindInput(node) {
-//             input = node;
-//             node.addEventListener('change', () => {
-//                 let v = Number(node.value);
-//                 if(Number.isNaN(v)) node.value = v = initial;
-//                 else if(v < min) node.value = v = min;
-//                 else if(v > max) node.value = v = max;
-//                 else if(!Number.isInteger(v)) node.value = v = Math.round(v);
-//                 set(v);
-//             });
-//         },
-//         initial,
-//     });
-// }
-
 export const dt_e6 = writable_init(250);
 
 export const particle_life = writable_init(4);
@@ -69,7 +41,7 @@ export const clr_strings = derived(clr_num, n => {
         // hue = i*i * 240 / ((n-1)*(n-1));
         // hue = Math.pow(i/(n-1), 1.4) * 240;
         // hue = i*240/(n-1) * Math.sin(i*Math.PI / (2*n-2));
-        hue = 240 * Math.pow(i/(n-1), .7) * Math.sin(i*Math.PI / (2*n-2))
+        hue = 240 * Math.pow(i/(n-1), .6) * Math.sin(i*Math.PI / (2*n-2))
         par = hue*(hue - 360) / 3200;
         res[i] = `hsl(${hue},55%,55%)`;
     }

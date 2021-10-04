@@ -13,7 +13,7 @@ complex_function.subscribe(fn => func = fn);
 
 
 let frame_request = null, suspended = false, /**@type {CanvasRenderingContext2D} */ ctx;
-let i, t, start, time=0, counter = 0;
+let i, t, time=0, counter = 0;
 
 
 let xMin, $scaleX, yMax, $scaleY;
@@ -71,7 +71,7 @@ function draw(c) {
 }
 
 function frame() {
-    start = performance.now();
+    var start = performance.now();
     if(++counter > 300) {
         av_frame_time.set((time/counter).toFixed(3));
         time = counter = 0;
@@ -89,13 +89,13 @@ function frame() {
         speeds[i] = temp.real*temp.real + temp.imag*temp.imag;
         currents[i].add(temp.mul_r(dt));
     }
-    // var tr_low, tr_high;
+    var low, high;
     for(t=0; t<$clr_num; t++) {
         ctx.fillStyle = $clr_strings[t];
-        // tr_low = $clr_thresholds[t+1]*$clr_thresholds[t+1];
-        // tr_high = $clr_thresholds[t]*$clr_thresholds[t];
+        low = $clr_thresholds[t+1];
+        high = $clr_thresholds[t];
         for(i=0; i<len; i++) {
-            if(speeds[i] < $clr_thresholds[t] && speeds[i] >= $clr_thresholds[t+1])
+            if(speeds[i] < high && speeds[i] >= low)
                 draw(currents[i]);
         }
     }

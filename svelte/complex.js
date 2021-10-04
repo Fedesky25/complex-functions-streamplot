@@ -119,6 +119,18 @@ export default class Complex {
         this.imag = i;
         return this;
     }
+    intoSine() {
+        var i = Math.cos(this.real)*Math.sinh(this.imag);
+        this.real = Math.sin(this.imag)*Math.cosh(this.real);
+        this.imag = i;
+        return this;
+    }
+    intoCosine() {
+        var i = -Math.sin(this.real)*Math.sinh(this.imag);
+        this.real = Math.cos(this.real)*Math.cosh(this.imag);
+        this.imag = i;
+        return this;
+    }
     toOne() {
         this.real = 1;
         this.imag = 0;

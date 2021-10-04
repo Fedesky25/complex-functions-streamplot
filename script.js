@@ -460,6 +460,18 @@ var app = (function () {
             this.imag = i;
             return this;
         }
+        intoSine() {
+            var i = Math.cos(this.real)*Math.sinh(this.imag);
+            this.real = Math.sin(this.imag)*Math.cosh(this.real);
+            this.imag = i;
+            return this;
+        }
+        intoCosine() {
+            var i = -Math.sin(this.real)*Math.sinh(this.imag);
+            this.real = Math.cos(this.real)*Math.cosh(this.imag);
+            this.imag = i;
+            return this;
+        }
         toOne() {
             this.real = 1;
             this.imag = 0;
@@ -722,6 +734,18 @@ var app = (function () {
             this.imag = i;
             return this;
         }
+        intoSine() {
+            var i = Math.cos(this.real)*Math.sinh(this.imag);
+            this.real = Math.sin(this.imag)*Math.cosh(this.real);
+            this.imag = i;
+            return this;
+        }
+        intoCosine() {
+            var i = -Math.sin(this.real)*Math.sinh(this.imag);
+            this.real = Math.cos(this.real)*Math.cosh(this.imag);
+            this.imag = i;
+            return this;
+        }
         toOne() {
             this.real = 1;
             this.imag = 0;
@@ -788,34 +812,6 @@ var app = (function () {
         return res;
     }
 
-    // function boundedIntValue(min, max, initial) {
-    //     let input, value = initial;
-    //     const { subscribe, set, update } = writable(initial);
-    //     function _set(v) {
-    //         if(input) input.value = v;
-    //         set(value = v);
-    //     }
-    //     return Object.freeze({
-    //         subscribe,
-    //         increment() { if(value < max) _set(value + 1) },
-    //         decrement() { if(value > min) _set(value - 1) },
-    //         reset() { _set(initial) },
-    //         /**@param {HTMLInputElement} node */
-    //         bindInput(node) {
-    //             input = node;
-    //             node.addEventListener('change', () => {
-    //                 let v = Number(node.value);
-    //                 if(Number.isNaN(v)) node.value = v = initial;
-    //                 else if(v < min) node.value = v = min;
-    //                 else if(v > max) node.value = v = max;
-    //                 else if(!Number.isInteger(v)) node.value = v = Math.round(v);
-    //                 set(v);
-    //             });
-    //         },
-    //         initial,
-    //     });
-    // }
-
     const dt_e6 = writable_init(250);
 
     const particle_life = writable_init(4);
@@ -839,7 +835,7 @@ var app = (function () {
             // hue = i*i * 240 / ((n-1)*(n-1));
             // hue = Math.pow(i/(n-1), 1.4) * 240;
             // hue = i*240/(n-1) * Math.sin(i*Math.PI / (2*n-2));
-            hue = 240 * Math.pow(i/(n-1), .7) * Math.sin(i*Math.PI / (2*n-2));
+            hue = 240 * Math.pow(i/(n-1), .6) * Math.sin(i*Math.PI / (2*n-2));
             res[i] = `hsl(${hue},55%,55%)`;
         }
         return res;
@@ -977,7 +973,7 @@ var app = (function () {
 
 
     let frame_request = null, suspended = false, /**@type {CanvasRenderingContext2D} */ ctx;
-    let i, t, start, time=0, counter = 0;
+    let i, t, time=0, counter = 0;
 
 
     let xMin, $scaleX, yMax, $scaleY;
@@ -1035,7 +1031,7 @@ var app = (function () {
     }
 
     function frame() {
-        start = performance.now();
+        var start = performance.now();
         if(++counter > 300) {
             av_frame_time.set((time/counter).toFixed(3));
             time = counter = 0;
@@ -1053,13 +1049,13 @@ var app = (function () {
             speeds[i] = temp.real*temp.real + temp.imag*temp.imag;
             currents[i].add(temp.mul_r(dt));
         }
-        // var tr_low, tr_high;
+        var low, high;
         for(t=0; t<$clr_num; t++) {
             ctx.fillStyle = $clr_strings[t];
-            // tr_low = $clr_thresholds[t+1]*$clr_thresholds[t+1];
-            // tr_high = $clr_thresholds[t]*$clr_thresholds[t];
+            low = $clr_thresholds[t+1];
+            high = $clr_thresholds[t];
             for(i=0; i<len; i++) {
-                if(speeds[i] < $clr_thresholds[t] && speeds[i] >= $clr_thresholds[t+1])
+                if(speeds[i] < high && speeds[i] >= low)
                     draw(currents[i]);
             }
         }
@@ -1914,11 +1910,11 @@ var app = (function () {
                 fn: c => tm[0].eq(c).exp_n(otherVars.k),
             },
             {
-                label: 'x<sup>r</sup><sub>k</sub>',
+                label: '(x<sub>k</sub>)<sup>r</sup>',
                 fn: c => tm[0].eq(c).exp_r(otherVars.r, otherVars.k),
             },
             {
-                label: 'x<sup>z<sub>1</sub></sup><sub>k</sub>',
+                label: '(x<sub>k</sub>)<sup>z<sub>1</sub></sup>',
                 fn: c => tm[0].eq(c).exp(z1, otherVars.k),
             },
         ],
@@ -1940,7 +1936,11 @@ var app = (function () {
                 fn: c => tm[0].eq(c).mul(c).add(c).exponentiate(),
             },
             {
-                label: 'z<sub>1</sub><sup>x</sup>',
+                label: 'e<sup>(x<sub>k</sub>)<sup>r</sup></sup>',
+                fn: c => tm[0].eq(c).exp_r(otherVars.r, otherVars.k).exponentiate(),
+            },
+            {
+                label: '(z<sub>1, k</sub>)<sup>x</sup>',
                 fn: c => tm[0].eq(z1).exp(c, otherVars.k),
             },
             {
@@ -1964,6 +1964,32 @@ var app = (function () {
             {
                 label: 'ln(x + z<sub>1</sub>)<sub>k</sub>',
                 fn: c => tm[0].eq(c).add(z1).logarize(otherVars.k),
+            },
+        ],
+        trigonometry: [
+            {
+                label: 'sin(x)',
+                fn: c => tm[0].eq(c).intoSine(),
+            },
+            {
+                label: 'cos(x)',
+                fn: c => tm[0].eq(c).intoCosine(),
+            },
+            {
+                label: 'sin(x + z<sub>1</sub>)',
+                fn: c => tm[0].eq(c).add(z1).intoSine(),
+            },
+            {
+                label: 'sin(z<sub>1</sub>x)',
+                fn: c => tm[0].eq(c).mul(z1).intoSine(),
+            },
+            {
+                label: 'cos(z<sub>1</sub>x)',
+                fn: c => tm[0].eq(c).mul(z1).intoCosine(),
+            },
+            {
+                label: 'z<sub>1</sub>sin(z<sub>2</sub>x)',
+                fn: c => tm[0].eq(c).add(z1).intoSine(),
             },
         ],
         miscellaneous: [
@@ -2437,7 +2463,7 @@ var app = (function () {
     /* svelte\VarsMenu.svelte generated by Svelte v3.43.0 */
 
     function create_fragment$1(ctx) {
-    	let div2;
+    	let div3;
     	let functionselect;
     	let t0;
     	let h20;
@@ -2471,6 +2497,8 @@ var app = (function () {
     	let t27;
     	let input2;
     	let input2_value_value;
+    	let t28;
+    	let div2;
     	let current;
     	let mounted;
     	let dispose;
@@ -2481,7 +2509,7 @@ var app = (function () {
 
     	return {
     		c() {
-    			div2 = element("div");
+    			div3 = element("div");
     			create_component(functionselect.$$.fragment);
     			t0 = space();
     			h20 = element("h2");
@@ -2512,46 +2540,50 @@ var app = (function () {
     			t18 = space();
     			div1 = element("div");
     			h33 = element("h3");
-    			h33.innerHTML = `real <span class="bold svelte-15biooo">r</span> =`;
+    			h33.innerHTML = `real <span class="bold svelte-bgzft3">r</span> =`;
     			t22 = space();
     			input1 = element("input");
     			t23 = space();
     			h34 = element("h3");
-    			h34.innerHTML = `integer <span class="bold svelte-15biooo">k</span> =`;
+    			h34.innerHTML = `integer <span class="bold svelte-bgzft3">k</span> =`;
     			t27 = space();
     			input2 = element("input");
-    			attr(h20, "class", "svelte-15biooo");
+    			t28 = space();
+    			div2 = element("div");
+    			div2.innerHTML = `z<sub>k</sub>, k ∈ ℤ ⇒ z ≡ |z| ∠ (atan2(z) + 2πk)`;
+    			attr(h20, "class", "svelte-bgzft3");
     			attr(input0, "type", "checkbox");
-    			attr(h30, "class", "svelte-15biooo");
-    			attr(h31, "class", "svelte-15biooo");
-    			attr(h32, "class", "svelte-15biooo");
-    			attr(div0, "class", "centering-col svelte-15biooo");
-    			attr(h21, "class", "svelte-15biooo");
-    			attr(h33, "class", "svelte-15biooo");
+    			attr(h30, "class", "svelte-bgzft3");
+    			attr(h31, "class", "svelte-bgzft3");
+    			attr(h32, "class", "svelte-bgzft3");
+    			attr(div0, "class", "centering-col svelte-bgzft3");
+    			attr(h21, "class", "svelte-bgzft3");
+    			attr(h33, "class", "svelte-bgzft3");
     			attr(input1, "type", "number");
     			input1.value = input1_value_value = /*otherVars*/ ctx[0].r;
     			attr(input1, "step", "0.01");
-    			attr(input1, "class", "svelte-15biooo");
-    			attr(h34, "class", "svelte-15biooo");
+    			attr(input1, "class", "svelte-bgzft3");
+    			attr(h34, "class", "svelte-bgzft3");
     			attr(input2, "type", "number");
     			input2.value = input2_value_value = /*otherVars*/ ctx[0].k;
     			attr(input2, "step", "1");
-    			attr(input2, "class", "svelte-15biooo");
-    			attr(div1, "class", "aligned svelte-15biooo");
-    			attr(div2, "class", "container svelte-15biooo");
-    			toggle_class(div2, "show", show);
+    			attr(input2, "class", "svelte-bgzft3");
+    			attr(div1, "class", "aligned svelte-bgzft3");
+    			attr(div2, "class", "expl svelte-bgzft3");
+    			attr(div3, "class", "container svelte-bgzft3");
+    			toggle_class(div3, "show", show);
     		},
     		m(target, anchor) {
-    			insert(target, div2, anchor);
-    			mount_component(functionselect, div2, null);
-    			append(div2, t0);
-    			append(div2, h20);
-    			append(div2, t2);
-    			append(div2, label);
+    			insert(target, div3, anchor);
+    			mount_component(functionselect, div3, null);
+    			append(div3, t0);
+    			append(div3, h20);
+    			append(div3, t2);
+    			append(div3, label);
     			append(label, t3);
     			append(label, input0);
-    			append(div2, t4);
-    			append(div2, div0);
+    			append(div3, t4);
+    			append(div3, div0);
     			append(div0, h30);
     			append(div0, t7);
     			mount_component(complexinput0, div0, null);
@@ -2563,10 +2595,10 @@ var app = (function () {
     			append(div0, h32);
     			append(div0, t15);
     			mount_component(complexinput2, div0, null);
-    			append(div2, t16);
-    			append(div2, h21);
-    			append(div2, t18);
-    			append(div2, div1);
+    			append(div3, t16);
+    			append(div3, h21);
+    			append(div3, t18);
+    			append(div3, div1);
     			append(div1, h33);
     			append(div1, t22);
     			append(div1, input1);
@@ -2574,6 +2606,8 @@ var app = (function () {
     			append(div1, h34);
     			append(div1, t27);
     			append(div1, input2);
+    			append(div3, t28);
+    			append(div3, div2);
     			current = true;
 
     			if (!mounted) {
@@ -2611,7 +2645,7 @@ var app = (function () {
     			current = false;
     		},
     		d(detaching) {
-    			if (detaching) detach(div2);
+    			if (detaching) detach(div3);
     			destroy_component(functionselect);
     			destroy_component(complexinput0);
     			destroy_component(complexinput1);

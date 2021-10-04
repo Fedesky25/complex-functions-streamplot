@@ -36,6 +36,7 @@
         <h3>integer <span class="bold">k</span> =</h3>
         <input type="number" value={otherVars.k} step="1" on:change={change_k}>
     </div>
+    <div class="expl">z<sub>k</sub>, k &isin; &integers; &rArr; z &equiv; |z| &ang; (atan2(z) + 2&pi;k)</div>
 </div>
 
 <style>
@@ -83,5 +84,10 @@
     .aligned input {
         grid-column: 2;
         justify-self: start;
+    }
+    .expl {
+        margin-top: 3rem;
+        text-align: center;
+        color: #e3e3e3;
     }
 </style>
