@@ -23,7 +23,7 @@ scaleX.subscribe(v => $scaleX = v);
 scaleY.subscribe(v => $scaleY = v);
 
 let $clr_thresholds = [], $clr_strings = [], $clr_num=10;
-clr_thresholds.subscribe(v => $clr_thresholds = v.map(t => t*t));
+clr_thresholds.subscribe(v => $clr_thresholds = v);
 clr_strings.subscribe(v => $clr_strings = v);
 clr_num.subscribe(v => $clr_num = v);
 
@@ -70,6 +70,8 @@ function draw(c) {
     );
 }
 
+function logistic(x) { return 1/(1 + 3*Math.exp(-0.1*x)) }
+
 function frame() {
     var start = performance.now();
     if(++counter > 300) {
@@ -86,8 +88,8 @@ function frame() {
             lives[i] = 0;
         }
         temp = func(currents[i]);
-        speeds[i] = temp.real*temp.real + temp.imag*temp.imag;
-        currents[i].add(temp.mul_r(dt));
+        speeds[i] = Math.sqrt(temp.real*temp.real + temp.imag*temp.imag);
+        currents[i].add( temp.mul_r( logistic(speeds[i]) / (speeds[i]*$scaleX) ) );
     }
     var low, high;
     for(t=0; t<$clr_num; t++) {

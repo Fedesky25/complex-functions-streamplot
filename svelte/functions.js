@@ -28,7 +28,11 @@ export default {
         },
         {
             label: '(x - z<sub>1</sub>)(x - z<sub>2</sub>)(x - z<sub>3</sub>)',
-            fn: c => tm[0].eq(c).mul_r(10).add(10),
+            fn: c => tm[0].toOne().mul$(
+                tm[1].eq(c).sub(z1),
+                tm[2].eq(c).sub(z2),
+                tm[3].eq(c).sub(z3)
+            ),
         }, 
     ],
     powers: [
@@ -116,7 +120,7 @@ export default {
         },
         {
             label: 'z<sub>1</sub>sin(z<sub>2</sub>x)',
-            fn: c => tm[0].eq(c).add(z1).intoSine(),
+            fn: c => tm[0].eq(c).mul(z2).intoSine().mul(z1),
         },
     ],
     miscellaneous: [
@@ -136,5 +140,52 @@ export default {
                 tm[3].eq(c).mul(c).add(z3).toReciprocal()
             ),
         },
+        {
+            label: '&Gamma;(x)',
+            fn: gamma,
+        },
     ],
 }
+
+const p = [
+    676.5203681218851,
+    -1259.1392167224028,
+    771.32342877765313,
+    -176.61502916214059,
+    12.507343278686905,
+    -0.13857109526572012,
+    9.9843695780195716e-6,
+    1.5056327351493116e-7
+]
+const epsilon = 1e-7, sqrt2PI = Math.sqrt(2 * Math.PI);
+
+/**@param {Complex} z*/
+function gamma(z) {
+    if(z.real < .5) {
+        z.real = 1 - z.real;
+        z.imag = -z.imag;
+        gamma(z);
+        z.real = 1 - z.real;
+        z.imag = -z.imag;
+        tm[1].eq(z).mul_r(Math.PI).intoSine().mul(tm[3]).toReciprocal().mul_r(Math.PI);
+        if(Math.abs(tm[1].imag) < epsilon) tm[1].imag = 0;
+        return tm[1];
+    } else {
+        z.real -= 1;
+        tm[0].becomes(0.99999999999980993, 0);
+        for(var i=0; i<8; i++) 
+            tm[0].add( tm[1].becomes(1+i,0).add(z).toReciprocal().mul_r(p[i]) );
+        tm[1].becomes(8 - .5, 0).add(z);
+        tm[2].eq(tm[1]);
+        z.real += .5;
+        tm[3].becomes(sqrt2PI, 0).mul$(
+            tm[0],
+            tm[1].exp(z),
+            tm[2].mul_r(-1).exponentiate(),
+        );
+        if(Math.abs(tm[3].imag) < epsilon) tm[3].imag = 0;
+        z.real += .5;
+        return tm[3];
+    }
+} 
+window.gamma = gamma;

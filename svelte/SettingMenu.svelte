@@ -41,10 +41,10 @@
             <h3>pixel gap</h3>
             <input type="number" use:forceBounds={{min: 2, max: 20, store: px_gap}}>
         </div>
-        <div class="spaced">
+        <!-- <div class="spaced">
             <h3>dt <i class="bracket left"></i>&times;10<sup>-6</sup><i class="bracket right"></i></h3>
             <input type="number" use:forceBounds={{min: 1, max: 2000, store: dt_e6}}>
-        </div>
+        </div> -->
         <div class="spaced">
             <h3>life <i class="bracket left"></i>&times;30 frames<i class="bracket right"></i></h3>
             <input type="number" use:forceBounds={{min: 1, max: 40, store: particle_life}}>

@@ -19,7 +19,7 @@
 <div class="container" class:show>
     <FunctionSelect />
     <h2>Complex numbers</h2>
-    <label>Degree angles: <input type="checkbox" on:change={e => deg.set(e.target.checked)}></label>
+    <!-- <label>Degree angles: <input type="checkbox" on:change={e => deg.set(e.target.checked)}></label> -->
     <div class="centering-col">
         <h3>z<sub>1</sub></h3>
         <ComplexInput number={z1}/>

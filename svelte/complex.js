@@ -121,7 +121,7 @@ export default class Complex {
     }
     intoSine() {
         var i = Math.cos(this.real)*Math.sinh(this.imag);
-        this.real = Math.sin(this.imag)*Math.cosh(this.real);
+        this.real = Math.sin(this.real)*Math.cosh(this.imag);
         this.imag = i;
         return this;
     }
@@ -148,7 +148,7 @@ export default class Complex {
     toReciprocal() {
         var m2 = this.real*this.real + this.imag*this.imag;
         this.real /= m2;
-        this.imag /= m2;
+        this.imag = -this.imag/m2;
         return this;
     }
     toString() {
@@ -166,6 +166,10 @@ export default class Complex {
     }
     static ReIm(real, imag) { return new Complex(real, imag) }
     static ModArg(mod, arg) { return new Complex(mod * Math.cos(arg), mod * Math.sin(arg)) }
+    /**@param {Complex} c*/
+    static exp(c) { return new Complex(Math.cos(c.imag), Math.sin(c.imag)).mul_r(Math.exp(c.real)) }
+    /**@param {Complex} c*/
+    static sin(c) { return new Complex(Math.sin(c.real)*Math.cosh(c.imag), Math.cos(c.real)*Math.sinh(c.imag)) }
 }
 window.Complex = Complex;
 function nf(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(4) } 

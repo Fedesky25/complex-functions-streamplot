@@ -24,7 +24,7 @@ export const particle_life = writable_init(4);
 
 export const px_gap = writable_init(12);
 
-export const clr_num = writable_init(7);
+export const clr_num = writable_init(8);
 export const clr_factor = writable_init(0);
 
 export const clr_thresholds = derived([clr_num, clr_factor], ([n, f]) => {

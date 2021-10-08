@@ -1,5 +1,5 @@
 <script>
-	import { deg } from './store.js';
+	// import { deg } from './store.js';
 	import Complex from './complex';
 	import { suspend } from './animator';
 
@@ -9,25 +9,25 @@
 		real: null, imag: null,
 		mod: null, arg: null,
 	};
-	deg.subscribe(d => {
-		if(!inputs.arg) return;
-		let arg = Math.atan2(number.imag, number.real);
-		inputs.arg.value = (d ? arg * 180 : arg) / Math.PI;
-	});
+	// deg.subscribe(d => {
+	// 	if(!inputs.arg) return;
+	// 	let arg = Math.atan2(number.imag, number.real);
+	// 	inputs.arg.value = (d ? arg * 180 : arg) / Math.PI;
+	// });
 	function RIchange() {
 		suspend(true);
 		number.real = Number(inputs.real.value) || 0;
 		number.imag = Number(inputs.imag.value) || 0;
 		inputs.mod.value = Math.sqrt(number.real*number.real + number.imag*number.imag);
-		let arg = Math.atan2(number.imag, number.real);
-		inputs.arg.value =  ($deg ? arg * 180 : arg) / Math.PI;
+		inputs.arg.value = Math.atan2(number.imag, number.real) * 180 / Math.PI;
+		// let arg = Math.atan2(number.imag, number.real);
+		// inputs.arg.value =  ($deg ? arg * 180 : arg) / Math.PI;
 		suspend(false);
 	}
 	function MAchange() {
 		suspend(true);
 		let mod = Number(inputs.mod.value);
-		let arg = Number(inputs.arg.value) * Math.PI;
-		if($deg) arg /= 180;
+		let arg = Number(inputs.arg.value) * Math.PI / 180;
 		inputs.real.value = number.real = mod * Math.cos(arg);
 		inputs.imag.value = number.imag = mod * Math.sin(arg);
 		suspend(false);
@@ -48,9 +48,10 @@
 		bind:this={inputs.mod}
 		on:change={MAchange} />
 	&ang;
-    <input type="number" value={Math.atan2(number.imag, number.real) * ($deg ? 180 : 1) / Math.PI} class="no-arrows"
+    <input type="number" value={Math.atan2(number.imag, number.real) * 180 / Math.PI} class="no-arrows"
         bind:this={inputs.arg}
-        on:change={MAchange} />{$deg ? '°' : 'π'}
+        on:change={MAchange} />&deg;
+	<!-- {$deg ? '°' : 'π'} -->
 </div>
 	
 <style>
