@@ -25,7 +25,10 @@
         {#each Object.keys(fns) as key}
             <h3>{key}</h3>
             {#each fns[key] as opt}
-                <div class="option" on:click={() => sel(opt)}>{@html opt.label}</div>
+                <div class="option" 
+                    title={opt.title}
+                    on:click={() => sel(opt)}
+                    >{@html opt.label}</div>
             {/each}
         {/each}
     </div>

@@ -507,10 +507,10 @@ var app = (function () {
         }
         static ReIm(real, imag) { return new Complex(real, imag) }
         static ModArg(mod, arg) { return new Complex(mod * Math.cos(arg), mod * Math.sin(arg)) }
-        /**@param {Complex} c*/
-        static exp(c) { return new Complex(Math.cos(c.imag), Math.sin(c.imag)).mul_r(Math.exp(c.real)) }
-        /**@param {Complex} c*/
-        static sin(c) { return new Complex(Math.sin(c.real)*Math.cosh(c.imag), Math.cos(c.real)*Math.sinh(c.imag)) }
+        // /**@param {Complex} c*/
+        // static exp(c) { return new Complex(Math.cos(c.imag), Math.sin(c.imag)).mul_r(Math.exp(c.real)) }
+        // /**@param {Complex} c*/
+        // static sin(c) { return new Complex(Math.sin(c.real)*Math.cosh(c.imag), Math.cos(c.real)*Math.sinh(c.imag)) }
     }
     window.Complex = Complex;
     function nf(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(4) }
@@ -1746,10 +1746,10 @@ var app = (function () {
                 label: 'e<sup>x<sup>2</sup></sup>',
                 fn: c => tm[0].eq(c).mul(c).exponentiate(),
             },
-            {
-                label: 'e<sup>x<sup>2</sup>+x</sup>',
-                fn: c => tm[0].eq(c).mul(c).add(c).exponentiate(),
-            },
+            // {
+            //     label: 'e<sup>x<sup>2</sup>+x</sup>',
+            //     fn: c => tm[0].eq(c).mul(c).add(c).exponentiate(),
+            // },
             {
                 label: 'e<sup>(x<sub>k</sub>)<sup>r</sup></sup>',
                 fn: c => tm[0].eq(c).exp_r(otherVars.r, otherVars.k).exponentiate(),
@@ -1825,11 +1825,34 @@ var app = (function () {
                 ),
             },
             {
+                title: 'Binet function (Fibonacci)',
+                label: '<em>F</em><sub>x</sub>',
+                fn: binet,
+            },
+            {
+                title: 'Gamma function (through Lanczos approximation)',
                 label: '&Gamma;(x)',
                 fn: gamma,
             },
+            // {
+            //     title: 'Riemann zeta function (through Riemann–Siegel formula)',
+            //     label: '&zeta;(x)',
+            //     fn: zeta,
+            // },
         ],
     };
+
+
+    const sqrt5 = Math.sqrt(5);
+    const ln_phi = Math.log((1 + sqrt5)/2);
+    function binet(z) {
+        tm[0].eq(z).mul_r(ln_phi).exponentiate();
+        tm[1].becomes(0, Math.PI).mul(z).exponentiate().div(tm[0]);
+        tm[0].sub(tm[1]).mul_r(1/sqrt5);
+        if(Math.abs(tm[0].imag) < Number.EPSILON) tm[0].imag = 0;
+        return tm[0];
+    }
+
 
     const p = [
         676.5203681218851,
@@ -1841,38 +1864,57 @@ var app = (function () {
         9.9843695780195716e-6,
         1.5056327351493116e-7
     ];
-    const epsilon = 1e-7, sqrt2PI = Math.sqrt(2 * Math.PI);
+    const sqrt2PI = Math.sqrt(2 * Math.PI);
 
+    /**@param {Complex} z*/
+    function _gamma_pos(z) {
+        tm[3].becomes(z.real-1, z.imag);
+        tm[0].becomes(0.99999999999980993, 0);
+        for(var i=0; i<8; i++) 
+            tm[0].add( tm[1].becomes(1+i,0).add(tm[3]).toReciprocal().mul_r(p[i]) );
+        tm[1].becomes(8 - .5, 0).add(tm[3]);
+        tm[2].eq(tm[1]);
+        tm[3].real += .5;
+        tm[0].mul_r(sqrt2PI).mul$( tm[1].exp(tm[3]), tm[2].mul_r(-1).exponentiate() );
+        if(Math.abs(tm[0].imag) < 1e-10) tm[0].imag = 0;
+        return tm[0];
+    }
     /**@param {Complex} z*/
     function gamma(z) {
         if(z.real < .5) {
-            z.real = 1 - z.real;
-            z.imag = -z.imag;
-            gamma(z);
-            z.real = 1 - z.real;
-            z.imag = -z.imag;
-            tm[1].eq(z).mul_r(Math.PI).intoSine().mul(tm[3]).toReciprocal().mul_r(Math.PI);
-            if(Math.abs(tm[1].imag) < epsilon) tm[1].imag = 0;
+            _gamma_pos(tm[3].becomes(1-z.real, -z.imag));
+            tm[1].eq(z).mul_r(Math.PI).intoSine().mul(tm[0]).toReciprocal().mul_r(Math.PI);
+            if(Math.abs(tm[1].imag) < 1e-10) tm[1].imag = 0;
             return tm[1];
-        } else {
-            z.real -= 1;
-            tm[0].becomes(0.99999999999980993, 0);
-            for(var i=0; i<8; i++) 
-                tm[0].add( tm[1].becomes(1+i,0).add(z).toReciprocal().mul_r(p[i]) );
-            tm[1].becomes(8 - .5, 0).add(z);
-            tm[2].eq(tm[1]);
-            z.real += .5;
-            tm[3].becomes(sqrt2PI, 0).mul$(
-                tm[0],
-                tm[1].exp(z),
-                tm[2].mul_r(-1).exponentiate(),
-            );
-            if(Math.abs(tm[3].imag) < epsilon) tm[3].imag = 0;
-            z.real += .5;
-            return tm[3];
-        }
-    } 
+        } else return _gamma_pos(z);
+    }
+
+    const ln2pi = Math.log(2*Math.PI);
+    const logs_n = [1,2,3,4,5,6,7,8,9,10].map(n => Math.log(n));
+
+    /**@param {Complex} z*/
+    function zeta(z) {
+        const M = Math.floor(Math.sqrt(Math.abs(z.imag)*.5/Math.PI));
+        // calculates gamma first since gamma uses tm
+        tm[3].becomes(1-z.real, -z.imag);
+        tm[3].eq(gamma(tm[3]));
+        // first summation
+        tm[0].toZero();
+        for(var i=0; i<M; i++) tm[0].add( tm[1].eq(z).mul_r(-logs_n[i]).exponentiate() );
+        // things of second term
+        tm[1].eq(z).mul_r(ln2pi).exponentiate();
+        tm[2].eq(z).mul_r(Math.PI/2).intoSine();
+        tm[3].mul(tm[1]).mul(tm[2]).mul_r(1/Math.PI);
+        // second summation
+        tm[1].toZero();
+        for(var i=0; i<M; i++) tm[1].add( tm[2].becomes(z.real-1, z.imag).mul_r(logs_n[i]).exponentiate() );
+        // all together
+        return tm[3].mul(tm[1]).add(tm[0]);
+    }
+
+    window.binet = binet;
     window.gamma = gamma;
+    window.zeta = zeta;
 
     /* svelte\FunctionSelect.svelte generated by Svelte v3.43.0 */
 
@@ -1892,6 +1934,7 @@ var app = (function () {
     function create_each_block_1(ctx) {
     	let div;
     	let raw_value = /*opt*/ ctx[9].label + "";
+    	let div_title_value;
     	let mounted;
     	let dispose;
 
@@ -1903,6 +1946,7 @@ var app = (function () {
     		c() {
     			div = element("div");
     			attr(div, "class", "option svelte-ikpdpr");
+    			attr(div, "title", div_title_value = /*opt*/ ctx[9].title);
     		},
     		m(target, anchor) {
     			insert(target, div, anchor);
@@ -1963,7 +2007,7 @@ var app = (function () {
     			insert(target, each_1_anchor, anchor);
     		},
     		p(ctx, dirty) {
-    			if (dirty & /*sel, fns, Object*/ 4) {
+    			if (dirty & /*fns, Object, sel*/ 4) {
     				each_value_1 = fns[/*key*/ ctx[6]];
     				let i;
 

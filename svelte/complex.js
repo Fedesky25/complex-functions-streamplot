@@ -166,10 +166,10 @@ export default class Complex {
     }
     static ReIm(real, imag) { return new Complex(real, imag) }
     static ModArg(mod, arg) { return new Complex(mod * Math.cos(arg), mod * Math.sin(arg)) }
-    /**@param {Complex} c*/
-    static exp(c) { return new Complex(Math.cos(c.imag), Math.sin(c.imag)).mul_r(Math.exp(c.real)) }
-    /**@param {Complex} c*/
-    static sin(c) { return new Complex(Math.sin(c.real)*Math.cosh(c.imag), Math.cos(c.real)*Math.sinh(c.imag)) }
+    // /**@param {Complex} c*/
+    // static exp(c) { return new Complex(Math.cos(c.imag), Math.sin(c.imag)).mul_r(Math.exp(c.real)) }
+    // /**@param {Complex} c*/
+    // static sin(c) { return new Complex(Math.sin(c.real)*Math.cosh(c.imag), Math.cos(c.real)*Math.sinh(c.imag)) }
 }
 window.Complex = Complex;
 function nf(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(4) } 
