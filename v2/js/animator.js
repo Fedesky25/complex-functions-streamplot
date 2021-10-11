@@ -8,7 +8,6 @@ var clrs = [], frames = [];
 plotFrames.subscribe(v => {
     clrs = v.clrs;
     frames = v.frames;
-    console.log(frames)
 });
 
 

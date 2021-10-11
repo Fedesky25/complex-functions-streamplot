@@ -66,12 +66,18 @@ export const axis = (function(){
 
 export const scale = derived(axis, a => ({x: 900/(a.xMax - a.xMin), y: 600/(a.yMax - a.yMin)}));
 
-export const px_gap = writable(12);
+/**@param {Number} v*/
+function writable_init(v) {
+    const res = writable(v);
+    Object.defineProperty(res, 'initial', {value: v});
+    return res;
+}
 
-export const life = writable(3);
+export const px_gap = writable_init(12);
+export const life = writable_init(4);
 
-const clr_num = writable(8);
-const clr_factor = writable(0);
+const clr_num = writable_init(8);
+const clr_factor = writable_init(0);
 const clr_thresholds = derived([clr_num, clr_factor], ([n, f]) => {
     const res = new Array(n+1), mul = Math.pow(100, f/10);
     for(var i=n; i >= 0; i--) res[i] = ( n / i - 1) * mul;
