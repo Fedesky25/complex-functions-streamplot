@@ -1,6 +1,6 @@
 <script>
 	import Complex from '../js/complex';
-	import {  } from '../js/plotFrames';
+	import fr from '../js/plotFrames';
 
 	export let number = new Complex();
 	
@@ -13,12 +13,14 @@
 		number.imag = Number(inputs.imag.value) || 0;
 		inputs.mod.value = Math.sqrt(number.real*number.real + number.imag*number.imag);
 		inputs.arg.value = Math.atan2(number.imag, number.real) * 180 / Math.PI;
+        fr.computeFrames();
 	}
 	function MAchange() {
 		let mod = Number(inputs.mod.value);
 		let arg = Number(inputs.arg.value) * Math.PI / 180;
 		inputs.real.value = number.real = mod * Math.cos(arg);
 		inputs.imag.value = number.imag = mod * Math.sin(arg);
+        fr.computeFrames();
 	}
 </script>
 
@@ -39,7 +41,6 @@
     <input type="number" value={Math.atan2(number.imag, number.real) * 180 / Math.PI} class="no-arrows"
         bind:this={inputs.arg}
         on:change={MAchange} />&deg;
-	<!-- {$deg ? '°' : 'π'} -->
 </div>
 	
 <style>

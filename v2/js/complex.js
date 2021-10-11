@@ -168,4 +168,4 @@ export default class Complex {
     static ModArg(mod, arg) { return new Complex(mod * Math.cos(arg), mod * Math.sin(arg)) }
 }
 window.Complex = Complex;
-function nf(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(4) } 
+function nf(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(3) } 

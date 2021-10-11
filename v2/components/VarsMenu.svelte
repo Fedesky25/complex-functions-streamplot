@@ -1,6 +1,14 @@
 <script>
+    import FunctionSelect from './FunctionSelect.svelte';
     import ComplexInput from './ComplexInput.svelte';
     import { z1, z2, z3, otherVars } from '../js/variables';
+    import fr from '../js/plotFrames';
+
+    /**@param {Event} e*/
+    function change_r(e) {
+        otherVars.r = parseFloat(e.target.value)
+        fr.computeFrames();
+    }
 
     /**@param {Event} e*/
     function change_k(e) {
@@ -9,14 +17,14 @@
         if(Number.isNaN(v)) t.value = v = 0;
         else if(!Number.isInteger(v)) t.value = v = Math.round(v);
         otherVars.k = v;
+        fr.computeFrames();
     }
 
 </script>
 
 <div class="container">
-    <!-- <FunctionSelect /> -->
+    <FunctionSelect />
     <h2>Complex numbers</h2>
-    <!-- <label>Degree angles: <input type="checkbox" on:change={e => deg.set(e.target.checked)}></label> -->
     <div class="centering-col">
         <h3>z<sub>1</sub></h3>
         <ComplexInput number={z1}/>
@@ -28,8 +36,7 @@
     <h2>Other numbers</h2>
     <div class="aligned">
         <h3>real <span class="bold">r</span> =</h3>
-        <input type="number" value={otherVars.r} step="0.01"
-            on:change={e => otherVars.r = parseFloat(e.target.value)}>
+        <input type="number" value={otherVars.r} step="0.1" on:change={change_r}>
         <h3>integer <span class="bold">k</span> =</h3>
         <input type="number" value={otherVars.k} step="1" on:change={change_k}>
     </div>

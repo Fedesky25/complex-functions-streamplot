@@ -1,9 +1,10 @@
 <script>
-    import { axis } from '../js/stores';
+    import { axis, complexFunction } from '../js/stores';
     import throttle from '../js/throttle';
-    import { debouce } from '../../svelte/utils';
+    import debouce from '../js/debounce';
     import { setCanvas } from '../js/animator';
-
+    import Complex from '../js/complex';
+ 
     let 
         scaleX = 0, scaleY = 0,
         xlabels = [], ylabels = [], 
@@ -26,13 +27,15 @@
         lastX=0, lastY=0, 
         currentX=0, currentY=0, 
         moving=false, pos='', showPos=false;
+    const z = new Complex();
 
-    const hidePos = debouce(() => showPos=false, 1000);
+    const hidePos = debouce(() => showPos=false, 2500);
     const calcPos = throttle(function(){
         showPos = true;
         var x = currentX * scaleX + axis.x.min;
         var y = axis.y.max - currentY * scaleY;
-        pos = `${x.toPrecision(3)} ${y<0? '-' : '+'} ${Math.abs(y).toPrecision(3)}i`;
+        z.becomes(x,y);
+        pos = `${z} → ${$complexFunction(z)}`;
         hidePos();
     }, 50);
 
@@ -66,6 +69,13 @@
         moving = false;
     }
 
+    /**@param {WheelEvent} e*/
+    function mousewheel(e) {
+        if(!e.altKey) return;
+        let fact = e.deltaY > 0 ? 1.1 : 10/11;
+        axis.scale(fact)
+    }
+
 </script>
 
 <div class="container">
@@ -73,6 +83,7 @@
         on:mousedown={mousedown}
         on:mouseup={mouseup}
         on:mousemove={mousemove}
+        on:mousewheel={mousewheel}
         use:setCanvas>
     </canvas>
     <div class="position" class:show={showPos}>{pos}</div>
@@ -113,6 +124,7 @@
         top: 0;
         right: 0;
         transform: translateY(-100%);
+        padding-bottom: .15rem;
         color: #fff;
         opacity: 0;
         transition: opacity .35s;

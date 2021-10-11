@@ -34,6 +34,7 @@ async function cf() {
     const axis = settings.axis;
     const deltaX = axis.xMax - axis.xMin;
     const deltaY = axis.yMax - axis.yMin;
+    const avScale = (deltaX/900 + deltaY/600)/2;
     const f = new Array(life);
     const clr_num = clrs.length;
     for(var j=0; j<life; j++) {
@@ -48,11 +49,10 @@ async function cf() {
             y: (axis.yMax - z.imag)*600/deltaY,
             s: speed,
         });
-        z.add(w.mul( logistic(speed) / speed ));
+        z.add(w.mul_r( avScale * logistic(speed) / speed ));
     }
     var ix, iy;
     for(ix=0; ix<=numX; ix++) {
-        info.computation.set(`Progress: ${((ix+1)/numX).toFixed(2)}%`);
         for(iy=0; iy<=numY; iy++) {
             z = new Complex(
                 ix/numX*deltaX + axis.xMin,
@@ -64,8 +64,8 @@ async function cf() {
         }
     }
     frames = f;
-    info.computation.set(`Computed in ${((performance.now()-start)/1000).toPrecision(3)}s`);
-    info.particles.set(`Particles: ${numX+1}\xd7${numY+1} = ${(numX+1)*(numY+1)}`);
+    info.computation.set(`Comp. ${(performance.now()-start).toPrecision(3)} ms`);
+    info.particles.set(`Part. ${numX+1}\xd7${numY+1}`);
     set({clrs, frames});
 }
 const computeFrames = debounce(cf, 100);
@@ -92,4 +92,4 @@ color.all.subscribe(({number: n, thresholds: t, strings: s}) => {
 });
 
 
-export default { subscribe }
+export default { subscribe, computeFrames }

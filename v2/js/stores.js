@@ -19,6 +19,17 @@ export const axis = (function(){
             value.yMax += yShift;
             set(value);
         },
+        scale(factor) {
+            const xMiddle = (value.xMin + value.xMax) / 2;
+            const xDelta = (value.xMax - xMiddle) * factor;
+            value.xMin = xMiddle - xDelta;
+            value.xMax = xMiddle + xDelta;
+            const yMiddle = (value.yMin + value.yMax) / 2;
+            const yDelta = (value.yMax - yMiddle) * factor;
+            value.yMin = yMiddle - yDelta;
+            value.yMax = yMiddle + yDelta;
+            set(value);
+        },
         reset() {
             value.xMin = -3;
             value.xMax = 3;

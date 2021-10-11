@@ -19,11 +19,10 @@ export function setCanvas(node) {
     ctx.fillRect(0, 0, 900, 600);
 }
 
-
 function draw() {
     const start = performance.now();
     if(++counter > 240) {
-        info.frame.set((time/counter).toFixed(3) + ' ms');
+        info.frame.set(`${(time/counter).toFixed(3)} ms`);
         time = counter = 0;
     }
     ctx.fillStyle = 'hsla(240,6%,15%,.01)';

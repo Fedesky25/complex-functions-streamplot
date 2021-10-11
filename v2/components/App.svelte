@@ -1,4 +1,5 @@
 <script>
+    import VarsMenu from './VarsMenu.svelte';
     import Canvas from './Canvas.svelte';
     import { info } from '../js/stores';
     import { toggle } from '../js/animator';
@@ -10,6 +11,7 @@
 </script>
 
 <button on:click={e => e.target.textContent = toggle() ? 'Pause' : 'Play'}>Play</button>
+<VarsMenu />
 <Canvas />
 <div class="info">
     {frame}<br>
