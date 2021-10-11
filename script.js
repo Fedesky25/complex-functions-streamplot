@@ -1746,10 +1746,6 @@ var app = (function () {
                 label: 'e<sup>x<sup>2</sup></sup>',
                 fn: c => tm[0].eq(c).mul(c).exponentiate(),
             },
-            // {
-            //     label: 'e<sup>x<sup>2</sup>+x</sup>',
-            //     fn: c => tm[0].eq(c).mul(c).add(c).exponentiate(),
-            // },
             {
                 label: 'e<sup>(x<sub>k</sub>)<sup>r</sup></sup>',
                 fn: c => tm[0].eq(c).exp_r(otherVars.r, otherVars.k).exponentiate(),
