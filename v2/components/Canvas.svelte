@@ -29,11 +29,11 @@
         moving=false, pos='', showPos=false;
     const z = new Complex();
 
-    const hidePos = debouce(() => showPos=false, 2500);
+    const hidePos = debouce(() => showPos=false, 3000);
     const calcPos = throttle(function(){
         showPos = true;
-        var x = currentX * scaleX + axis.x.min;
-        var y = axis.y.max - currentY * scaleY;
+        var x = currentX * scaleX + axis.xMin;
+        var y = axis.yMax - currentY * scaleY;
         z.becomes(x,y);
         pos = `${z} → ${$complexFunction(z)}`;
         hidePos();

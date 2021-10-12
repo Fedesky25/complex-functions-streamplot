@@ -2,6 +2,7 @@
     import VarsMenu from './VarsMenu.svelte';
     import Canvas from './Canvas.svelte';
     import SettingsMenu from './SettingsMenu.svelte';
+    import Colors from './Colors.svelte';
     import { info } from '../js/stores';
     import { toggle } from '../js/animator';
 
@@ -15,6 +16,7 @@
 <VarsMenu />
 <Canvas />
 <SettingsMenu />
+<Colors />
 <div class="info">
     {frame}<br>
     {particles}<br>

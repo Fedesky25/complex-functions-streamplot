@@ -3,6 +3,7 @@ import Complex from './complex';
 
 
 export const axis = (function(){
+    let lock = true;
     const value = {
         xMin: -3,
         xMax: 3,
@@ -37,31 +38,47 @@ export const axis = (function(){
             value.yMax = 2;
             set(value);
         },
-        x: {
-            get min() {return value.xMin},
-            set min(v) {
-                value.xMin = v;
-                set(value);
-            },
-            get max() {return value.xMax},
-            set max(v) {
-                value.xMax = v;
-                set(value);
-            },
+        get xMin() {return value.xMin},
+        set xMin(v) {
+            if(lock) value.yMin += (v-value.xMin) * 2/3;
+            value.xMin=v;
+            set(value);
         },
-        y: {
-            get min() {return value.yMin},
-            set min(v) {
-                value.yMin = v;
-                set(value);
-            },
-            get max() {return value.yMax},
-            set max(v) {
-                value.yMax = v;
-                set(value);
-            },
+        get xMax() {return value.xMax},
+        set xMax(v) {
+            if(lock) value.yMax += (v-value.xMin) * 2/3;
+            value.xMax=v;
+            set(value)
         },
-    })
+        get yMin() {return value.yMin},
+        set yMin(v) {
+            if(lock) value.xMin += (v-value.yMin) * 1.5;
+            value.yMin=v;
+            set(value);
+        },
+        get yMax() {return value.yMax},
+        set yMax(v) {
+            if(lock) value.xMax += (v-value.yMax) * 1.5;
+            value.yMax=v;
+            set(value);
+        },
+        get locked() {return lock},
+        set locked(v) {
+            lock = v;
+            if(v) {
+                const xMiddle = (value.xMax+value.xMin)/2;
+                const yMiddle = (value.yMax+value.yMin)/2;
+                const average = (Math.abs(value.xMax-xMiddle)*3 + Math.abs(value.yMax-yMiddle)*2) / 5;
+                // * 3 / mean(2,3) = 1.2
+                value.xMin = xMiddle - average*1.2;
+                value.xMax = xMiddle + average*1.2;
+                // * 2 / mean(2,3) = 0.8;
+                value.yMin = yMiddle - average*0.8;
+                value.yMax = yMiddle + average*0.8;
+                set(value);
+            }
+        },
+    });
 })();
 
 export const scale = derived(axis, a => ({x: 900/(a.xMax - a.xMin), y: 600/(a.yMax - a.yMin)}));
@@ -81,6 +98,7 @@ const clr_factor = writable_init(0);
 const clr_thresholds = derived([clr_num, clr_factor], ([n, f]) => {
     const res = new Array(n+1), mul = Math.pow(100, f/10);
     for(var i=n; i >= 0; i--) res[i] = ( n / i - 1) * mul;
+    console.log('thr', res);
     return res;
 });
 const clr_strings = derived(clr_num, n => {
@@ -93,15 +111,16 @@ const clr_strings = derived(clr_num, n => {
     }
     return res;
 });
+const clr_all = derived(
+    [clr_thresholds, clr_strings, clr_num, clr_factor],
+    ([t, s, n, f]) => (console.log('all', t), {number: n, factor: f, strings: s, thresholds: t})
+);
 export const color = Object.freeze({
     number: clr_num,
     factor: clr_factor,
     strings: clr_strings,
     thresholds: clr_thresholds,
-    all: derived(
-        [clr_num, clr_factor, clr_strings, clr_thresholds],
-        ([n, f, s, t]) => ({number: n, factor: f, strings: s, thresholds: t})
-    ),
+    all: clr_all,
 });
 
 export const info = Object.freeze({

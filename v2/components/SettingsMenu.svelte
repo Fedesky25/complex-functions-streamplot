@@ -1,4 +1,5 @@
 <script>
+    import { onMount } from 'svelte';
     import { axis, color, life, px_gap } from '../js/stores';
     let show = false;
 
@@ -25,8 +26,26 @@
         return { destroy() { node.removeEventListener("change", change) } }
     }
 
-    let lock = false;
+    const axisInputs = {
+        xMin: null, xMax: null,
+        yMin: null, yMax: null,
+    }
 
+    function prep(node, key) {
+        node.value = axis[key];
+        axisInputs[key] = node;
+        function change(e) {
+            axis[key] = +e.target.value;
+        }
+        node.addEventListener("change", change);
+        return { destroy() { node.removeEventListener("change", change) } }
+    }
+
+    onMount(() => {
+        axis.subscribe(v => {
+            for(var key in v) axisInputs[key].value = v[key];
+        });
+    })
 </script>
 
 <div class="container" class:show>
@@ -34,21 +53,21 @@
         <h2>ViewBox</h2>
         <div class="spaced">
             <h3 class="center">x axis</h3>
-            <div>
-                <input type="number" class="no-arrows" value={axis.x.min}>
-                <input type="number" class="no-arrows" value={axis.x.max}>
+            <div class="range">
+                <input type="number" class="no-arrows" use:prep={"xMin"}>
+                <input type="number" class="no-arrows" use:prep={"xMax"}>
             </div>
         </div>
         <div class="spaced">
             <h3 class="center">y axis</h3>
-            <div>
-                <input type="number" class="no-arrows" value={axis.y.min}>
-                <input type="number" class="no-arrows" value={axis.y.max}>
+            <div class="range">
+                <input type="number" class="no-arrows" use:prep={"yMin"}>
+                <input type="number" class="no-arrows" use:prep={"yMax"}>
             </div>
         </div>
         <div class="spaced">
-            <h3>Lock y axis</h3>
-            <input type="checkbox" bind:checked={lock}>
+            <h3>Lock axis</h3>
+            <input type="checkbox" checked={axis.locked} on:change={e => axis.locked = e.target.checked}>
         </div>
         <button class="reset" on:click={axis.reset}>Reset viewbox</button>
     </div>
@@ -96,8 +115,8 @@
         z-index: 20;
 
         display: grid;
-        grid-template-columns: 30ch 30ch;
-        column-gap: 4rem;
+        grid-template-columns: 32ch 30ch;
+        column-gap: 3.5rem;
 
         padding: 1.5rem;
         background-color: var(--bg);
@@ -132,7 +151,6 @@
     input {
         width: 8ch;
     }
-    input + input { margin-left: .6ch; }
     .spaced {
         display: flex;
         align-items: center;
@@ -140,6 +158,14 @@
     }
     .spaced + .spaced {
         margin-top: .8rem;
+    }
+    /* .range {
+        display: flex;
+        flex-direction: column;
+    } */
+    .range > input {
+        max-width: 10ch;
+        width: 10ch;
     }
     button.reset {
         margin-top: .8rem;

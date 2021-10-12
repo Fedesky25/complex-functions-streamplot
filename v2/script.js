@@ -78,6 +78,9 @@ var app = (function () {
         if (text.wholeText !== data)
             text.data = data;
     }
+    function set_style(node, key, value, important) {
+        node.style.setProperty(key, value, important ? 'important' : '');
+    }
     function toggle_class(element, name, toggle) {
         element.classList[toggle ? 'add' : 'remove'](name);
     }
@@ -118,6 +121,14 @@ var app = (function () {
     let current_component;
     function set_current_component(component) {
         current_component = component;
+    }
+    function get_current_component() {
+        if (!current_component)
+            throw new Error('Function called outside component initialization');
+        return current_component;
+    }
+    function onMount(fn) {
+        get_current_component().$$.on_mount.push(fn);
     }
 
     const dirty_components = [];
@@ -608,6 +619,7 @@ var app = (function () {
     function nf(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(3) }
 
     const axis = (function(){
+        let lock = true;
         const value = {
             xMin: -3,
             xMax: 3,
@@ -642,31 +654,47 @@ var app = (function () {
                 value.yMax = 2;
                 set(value);
             },
-            x: {
-                get min() {return value.xMin},
-                set min(v) {
-                    value.xMin = v;
-                    set(value);
-                },
-                get max() {return value.xMax},
-                set max(v) {
-                    value.xMax = v;
-                    set(value);
-                },
+            get xMin() {return value.xMin},
+            set xMin(v) {
+                if(lock) value.yMin += (v-value.xMin) * 2/3;
+                value.xMin=v;
+                set(value);
             },
-            y: {
-                get min() {return value.yMin},
-                set min(v) {
-                    value.yMin = v;
-                    set(value);
-                },
-                get max() {return value.yMax},
-                set max(v) {
-                    value.yMax = v;
-                    set(value);
-                },
+            get xMax() {return value.xMax},
+            set xMax(v) {
+                if(lock) value.yMax += (v-value.xMin) * 2/3;
+                value.xMax=v;
+                set(value);
             },
-        })
+            get yMin() {return value.yMin},
+            set yMin(v) {
+                if(lock) value.xMin += (v-value.yMin) * 1.5;
+                value.yMin=v;
+                set(value);
+            },
+            get yMax() {return value.yMax},
+            set yMax(v) {
+                if(lock) value.xMax += (v-value.yMax) * 1.5;
+                value.yMax=v;
+                set(value);
+            },
+            get locked() {return lock},
+            set locked(v) {
+                lock = v;
+                if(v) {
+                    const xMiddle = (value.xMax+value.xMin)/2;
+                    const yMiddle = (value.yMax+value.yMin)/2;
+                    const average = (Math.abs(value.xMax-xMiddle)*3 + Math.abs(value.yMax-yMiddle)*2) / 5;
+                    // * 3 / mean(2,3) = 1.2
+                    value.xMin = xMiddle - average*1.2;
+                    value.xMax = xMiddle + average*1.2;
+                    // * 2 / mean(2,3) = 0.8;
+                    value.yMin = yMiddle - average*0.8;
+                    value.yMax = yMiddle + average*0.8;
+                    set(value);
+                }
+            },
+        });
     })();
 
     derived(axis, a => ({x: 900/(a.xMax - a.xMin), y: 600/(a.yMax - a.yMin)}));
@@ -686,6 +714,7 @@ var app = (function () {
     const clr_thresholds = derived([clr_num, clr_factor], ([n, f]) => {
         const res = new Array(n+1), mul = Math.pow(100, f/10);
         for(var i=n; i >= 0; i--) res[i] = ( n / i - 1) * mul;
+        console.log('thr', res);
         return res;
     });
     const clr_strings = derived(clr_num, n => {
@@ -697,15 +726,16 @@ var app = (function () {
         }
         return res;
     });
+    const clr_all = derived(
+        [clr_thresholds, clr_strings, clr_num, clr_factor],
+        ([t, s, n, f]) => (console.log('all', t), {number: n, factor: f, strings: s, thresholds: t})
+    );
     const color = Object.freeze({
         number: clr_num,
         factor: clr_factor,
         strings: clr_strings,
         thresholds: clr_thresholds,
-        all: derived(
-            [clr_num, clr_factor, clr_strings, clr_thresholds],
-            ([n, f, s, t]) => ({number: n, factor: f, strings: s, thresholds: t})
-        ),
+        all: clr_all,
     });
 
     const info = Object.freeze({
@@ -805,12 +835,16 @@ var app = (function () {
     color.all.subscribe(({number: n, thresholds: t, strings: s}) => {
         var c, i;
         thresholds = t;
+        console.log("all sub", t);
         frames$1 = frames$1.map(f => {
             const r = new Array(n);
             for(c=0; c<n; c++) r[c] = [];
-            for(c=0; c<n; c++) {
+            var ci;
+            for(c=f.length-1; c>=0; c--) {
                 for(i=f[c].length-1; i>=0; i--) {
-                    r[clr_index(f[c][i].s)].push(f[c][i]);
+                    ci = clr_index(f[c][i].s);
+                    if(ci >= n) console.log(c, i, f[c][i], ci);
+                    r[ci].push(f[c][i]);
                 }
             }
             return r;
@@ -1056,7 +1090,7 @@ var app = (function () {
 
     /* v2\components\FunctionSelect.svelte generated by Svelte v3.43.0 */
 
-    function get_each_context$1(ctx, list, i) {
+    function get_each_context$2(ctx, list, i) {
     	const child_ctx = ctx.slice();
     	child_ctx[7] = list[i];
     	return child_ctx;
@@ -1107,7 +1141,7 @@ var app = (function () {
     }
 
     // (27:8) {#each Object.keys(fns) as key}
-    function create_each_block$1(ctx) {
+    function create_each_block$2(ctx) {
     	let h3;
     	let t0_value = /*key*/ ctx[7] + "";
     	let t0;
@@ -1177,7 +1211,7 @@ var app = (function () {
     	};
     }
 
-    function create_fragment$5(ctx) {
+    function create_fragment$6(ctx) {
     	let div1;
     	let button;
     	let t0;
@@ -1190,7 +1224,7 @@ var app = (function () {
     	let each_blocks = [];
 
     	for (let i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
     	}
 
     	return {
@@ -1239,12 +1273,12 @@ var app = (function () {
     				let i;
 
     				for (i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$1(ctx, each_value, i);
+    					const child_ctx = get_each_context$2(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(child_ctx, dirty);
     					} else {
-    						each_blocks[i] = create_each_block$1(child_ctx);
+    						each_blocks[i] = create_each_block$2(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(div0, null);
     					}
@@ -1269,7 +1303,7 @@ var app = (function () {
     	};
     }
 
-    function instance$5($$self, $$props, $$invalidate) {
+    function instance$6($$self, $$props, $$invalidate) {
     	let options, onFocus = false;
     	let label = fns.polynomials[0].label;
     	complexFunction.set(fns.polynomials[0].fn);
@@ -1305,13 +1339,13 @@ var app = (function () {
     class FunctionSelect extends SvelteComponent {
     	constructor(options) {
     		super();
-    		init(this, options, instance$5, create_fragment$5, safe_not_equal, {});
+    		init(this, options, instance$6, create_fragment$6, safe_not_equal, {});
     	}
     }
 
     /* v2\components\ComplexInput.svelte generated by Svelte v3.43.0 */
 
-    function create_fragment$4(ctx) {
+    function create_fragment$5(ctx) {
     	let div;
     	let t0;
     	let input0;
@@ -1418,7 +1452,7 @@ var app = (function () {
     	};
     }
 
-    function instance$4($$self, $$props, $$invalidate) {
+    function instance$5($$self, $$props, $$invalidate) {
     	let { number = new Complex() } = $$props;
 
     	const inputs = {
@@ -1491,13 +1525,13 @@ var app = (function () {
     class ComplexInput extends SvelteComponent {
     	constructor(options) {
     		super();
-    		init(this, options, instance$4, create_fragment$4, safe_not_equal, { number: 0 });
+    		init(this, options, instance$5, create_fragment$5, safe_not_equal, { number: 0 });
     	}
     }
 
     /* v2\components\VarsMenu.svelte generated by Svelte v3.43.0 */
 
-    function create_fragment$3(ctx) {
+    function create_fragment$4(ctx) {
     	let div3;
     	let functionselect;
     	let t0;
@@ -1676,7 +1710,7 @@ var app = (function () {
     	};
     }
 
-    function instance$3($$self, $$props, $$invalidate) {
+    function instance$4($$self, $$props, $$invalidate) {
     	function change_r(e) {
     		$$invalidate(0, otherVars.r = parseFloat(e.target.value), otherVars);
     		plotFrames.computeFrames();
@@ -1697,7 +1731,7 @@ var app = (function () {
     class VarsMenu extends SvelteComponent {
     	constructor(options) {
     		super();
-    		init(this, options, instance$3, create_fragment$3, safe_not_equal, {});
+    		init(this, options, instance$4, create_fragment$4, safe_not_equal, {});
     	}
     }
 
@@ -1769,7 +1803,7 @@ var app = (function () {
 
     /* v2\components\Canvas.svelte generated by Svelte v3.43.0 */
 
-    function get_each_context(ctx, list, i) {
+    function get_each_context$1(ctx, list, i) {
     	const child_ctx = ctx.slice();
     	child_ctx[22] = list[i];
     	return child_ctx;
@@ -1807,7 +1841,7 @@ var app = (function () {
     }
 
     // (102:8) {#each ylabels as l}
-    function create_each_block(ctx) {
+    function create_each_block$1(ctx) {
     	let div;
     	let div_data_label_value;
 
@@ -1831,7 +1865,7 @@ var app = (function () {
     	};
     }
 
-    function create_fragment$2(ctx) {
+    function create_fragment$3(ctx) {
     	let div5;
     	let canvas;
     	let t0;
@@ -1860,7 +1894,7 @@ var app = (function () {
     	let each_blocks = [];
 
     	for (let i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
     	}
 
     	return {
@@ -1992,12 +2026,12 @@ var app = (function () {
     				let i;
 
     				for (i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context(ctx, each_value, i);
+    					const child_ctx = get_each_context$1(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(child_ctx, dirty);
     					} else {
-    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i] = create_each_block$1(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(div4, null);
     					}
@@ -2028,7 +2062,7 @@ var app = (function () {
     	return res;
     }
 
-    function instance$2($$self, $$props, $$invalidate) {
+    function instance$3($$self, $$props, $$invalidate) {
     	let $complexFunction;
     	component_subscribe($$self, complexFunction, $$value => $$invalidate(17, $complexFunction = $$value));
 
@@ -2057,13 +2091,13 @@ var app = (function () {
     		showPos = false;
 
     	const z = new Complex();
-    	const hidePos = debounce(() => $$invalidate(5, showPos = false), 2500);
+    	const hidePos = debounce(() => $$invalidate(5, showPos = false), 3000);
 
     	const calcPos = throttle(
     		function () {
     			$$invalidate(5, showPos = true);
-    			var x = currentX * scaleX + axis.x.min;
-    			var y = axis.y.max - currentY * scaleY;
+    			var x = currentX * scaleX + axis.xMin;
+    			var y = axis.yMax - currentY * scaleY;
     			z.becomes(x, y);
     			$$invalidate(4, pos = `${z} → ${$complexFunction(z)}`);
     			hidePos();
@@ -2127,13 +2161,13 @@ var app = (function () {
     class Canvas extends SvelteComponent {
     	constructor(options) {
     		super();
-    		init(this, options, instance$2, create_fragment$2, safe_not_equal, {});
+    		init(this, options, instance$3, create_fragment$3, safe_not_equal, {});
     	}
     }
 
     /* v2\components\SettingsMenu.svelte generated by Svelte v3.43.0 */
 
-    function create_fragment$1(ctx) {
+    function create_fragment$2(ctx) {
     	let div11;
     	let div5;
     	let h20;
@@ -2158,6 +2192,7 @@ var app = (function () {
     	let h32;
     	let t11;
     	let input4;
+    	let input4_checked_value;
     	let t12;
     	let button0;
     	let t14;
@@ -2215,7 +2250,7 @@ var app = (function () {
     			t9 = space();
     			div4 = element("div");
     			h32 = element("h3");
-    			h32.textContent = "Lock y axis";
+    			h32.textContent = "Lock axis";
     			t11 = space();
     			input4 = element("input");
     			t12 = space();
@@ -2234,7 +2269,7 @@ var app = (function () {
     			t19 = space();
     			div7 = element("div");
     			h34 = element("h3");
-    			h34.innerHTML = `life <i class="bracket left svelte-p3ubdq"></i>×30 frames<i class="bracket right svelte-p3ubdq"></i>`;
+    			h34.innerHTML = `life <i class="bracket left svelte-qrqd3e"></i>×30 frames<i class="bracket right svelte-qrqd3e"></i>`;
     			t22 = space();
     			input6 = element("input");
     			t23 = space();
@@ -2251,50 +2286,49 @@ var app = (function () {
     			input8 = element("input");
     			t29 = space();
     			button1 = element("button");
-    			button1.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" class="svelte-p3ubdq"><use href="#settings-svg"></use></svg>`;
-    			attr(h20, "class", "svelte-p3ubdq");
-    			attr(h30, "class", "center svelte-p3ubdq");
+    			button1.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" class="svelte-qrqd3e"><use href="#settings-svg"></use></svg>`;
+    			attr(h20, "class", "svelte-qrqd3e");
+    			attr(h30, "class", "center svelte-qrqd3e");
     			attr(input0, "type", "number");
-    			attr(input0, "class", "no-arrows svelte-p3ubdq");
-    			input0.value = axis.x.min;
+    			attr(input0, "class", "no-arrows svelte-qrqd3e");
     			attr(input1, "type", "number");
-    			attr(input1, "class", "no-arrows svelte-p3ubdq");
-    			input1.value = axis.x.max;
-    			attr(div1, "class", "spaced svelte-p3ubdq");
-    			attr(h31, "class", "center svelte-p3ubdq");
+    			attr(input1, "class", "no-arrows svelte-qrqd3e");
+    			attr(div0, "class", "range svelte-qrqd3e");
+    			attr(div1, "class", "spaced svelte-qrqd3e");
+    			attr(h31, "class", "center svelte-qrqd3e");
     			attr(input2, "type", "number");
-    			attr(input2, "class", "no-arrows svelte-p3ubdq");
-    			input2.value = axis.y.min;
+    			attr(input2, "class", "no-arrows svelte-qrqd3e");
     			attr(input3, "type", "number");
-    			attr(input3, "class", "no-arrows svelte-p3ubdq");
-    			input3.value = axis.y.max;
-    			attr(div3, "class", "spaced svelte-p3ubdq");
-    			attr(h32, "class", "svelte-p3ubdq");
+    			attr(input3, "class", "no-arrows svelte-qrqd3e");
+    			attr(div2, "class", "range svelte-qrqd3e");
+    			attr(div3, "class", "spaced svelte-qrqd3e");
+    			attr(h32, "class", "svelte-qrqd3e");
     			attr(input4, "type", "checkbox");
-    			attr(input4, "class", "svelte-p3ubdq");
-    			attr(div4, "class", "spaced svelte-p3ubdq");
-    			attr(button0, "class", "reset svelte-p3ubdq");
-    			attr(h21, "class", "svelte-p3ubdq");
-    			attr(h33, "class", "svelte-p3ubdq");
+    			input4.checked = input4_checked_value = /*axis*/ ctx[0].locked;
+    			attr(input4, "class", "svelte-qrqd3e");
+    			attr(div4, "class", "spaced svelte-qrqd3e");
+    			attr(button0, "class", "reset svelte-qrqd3e");
+    			attr(h21, "class", "svelte-qrqd3e");
+    			attr(h33, "class", "svelte-qrqd3e");
     			attr(input5, "type", "number");
-    			attr(input5, "class", "svelte-p3ubdq");
-    			attr(div6, "class", "spaced svelte-p3ubdq");
-    			attr(h34, "class", "svelte-p3ubdq");
+    			attr(input5, "class", "svelte-qrqd3e");
+    			attr(div6, "class", "spaced svelte-qrqd3e");
+    			attr(h34, "class", "svelte-qrqd3e");
     			attr(input6, "type", "number");
-    			attr(input6, "class", "svelte-p3ubdq");
-    			attr(div7, "class", "spaced svelte-p3ubdq");
-    			attr(h35, "class", "svelte-p3ubdq");
+    			attr(input6, "class", "svelte-qrqd3e");
+    			attr(div7, "class", "spaced svelte-qrqd3e");
+    			attr(h35, "class", "svelte-qrqd3e");
     			attr(input7, "type", "number");
-    			attr(input7, "class", "svelte-p3ubdq");
-    			attr(div8, "class", "spaced svelte-p3ubdq");
-    			attr(h36, "class", "svelte-p3ubdq");
+    			attr(input7, "class", "svelte-qrqd3e");
+    			attr(div8, "class", "spaced svelte-qrqd3e");
+    			attr(h36, "class", "svelte-qrqd3e");
     			attr(input8, "type", "number");
-    			attr(input8, "class", "svelte-p3ubdq");
-    			attr(div9, "class", "spaced svelte-p3ubdq");
-    			attr(div11, "class", "container svelte-p3ubdq");
-    			toggle_class(div11, "show", /*show*/ ctx[0]);
-    			attr(button1, "class", "toggle-btn svelte-p3ubdq");
-    			toggle_class(button1, "rotated", /*show*/ ctx[0]);
+    			attr(input8, "class", "svelte-qrqd3e");
+    			attr(div9, "class", "spaced svelte-qrqd3e");
+    			attr(div11, "class", "container svelte-qrqd3e");
+    			toggle_class(div11, "show", /*show*/ ctx[1]);
+    			attr(button1, "class", "toggle-btn svelte-qrqd3e");
+    			toggle_class(button1, "rotated", /*show*/ ctx[1]);
     		},
     		m(target, anchor) {
     			insert(target, div11, anchor);
@@ -2321,7 +2355,6 @@ var app = (function () {
     			append(div4, h32);
     			append(div4, t11);
     			append(div4, input4);
-    			input4.checked = /*lock*/ ctx[1];
     			append(div5, t12);
     			append(div5, button0);
     			append(div11, t14);
@@ -2352,8 +2385,14 @@ var app = (function () {
 
     			if (!mounted) {
     				dispose = [
-    					listen(input4, "change", /*input4_change_handler*/ ctx[2]),
-    					listen(button0, "click", axis.reset),
+    					action_destroyer(/*prep*/ ctx[2].call(null, input0, "xMin")),
+    					action_destroyer(/*prep*/ ctx[2].call(null, input1, "xMax")),
+    					action_destroyer(/*prep*/ ctx[2].call(null, input2, "yMin")),
+    					action_destroyer(/*prep*/ ctx[2].call(null, input3, "yMax")),
+    					listen(input4, "change", /*change_handler*/ ctx[3]),
+    					listen(button0, "click", function () {
+    						if (is_function(/*axis*/ ctx[0].reset)) /*axis*/ ctx[0].reset.apply(this, arguments);
+    					}),
     					action_destroyer(bounds.call(null, input5, { min: 2, max: 20, store: px_gap })),
     					action_destroyer(bounds.call(null, input6, { min: 1, max: 40, store: life })),
     					action_destroyer(bounds.call(null, input7, { min: 2, max: 20, store: color.number })),
@@ -2363,23 +2402,25 @@ var app = (function () {
     						store: color.factor,
     						mustBeInt: false
     					})),
-    					listen(button1, "click", /*click_handler*/ ctx[3])
+    					listen(button1, "click", /*click_handler*/ ctx[4])
     				];
 
     				mounted = true;
     			}
     		},
-    		p(ctx, [dirty]) {
-    			if (dirty & /*lock*/ 2) {
-    				input4.checked = /*lock*/ ctx[1];
+    		p(new_ctx, [dirty]) {
+    			ctx = new_ctx;
+
+    			if (dirty & /*axis*/ 1 && input4_checked_value !== (input4_checked_value = /*axis*/ ctx[0].locked)) {
+    				input4.checked = input4_checked_value;
     			}
 
-    			if (dirty & /*show*/ 1) {
-    				toggle_class(div11, "show", /*show*/ ctx[0]);
+    			if (dirty & /*show*/ 2) {
+    				toggle_class(div11, "show", /*show*/ ctx[1]);
     			}
 
-    			if (dirty & /*show*/ 1) {
-    				toggle_class(button1, "rotated", /*show*/ ctx[0]);
+    			if (dirty & /*show*/ 2) {
+    				toggle_class(button1, "rotated", /*show*/ ctx[1]);
     			}
     		},
     		i: noop,
@@ -2412,20 +2453,180 @@ var app = (function () {
     	};
     }
 
-    function instance$1($$self, $$props, $$invalidate) {
+    function instance$2($$self, $$props, $$invalidate) {
     	let show = false;
-    	let lock = false;
 
-    	function input4_change_handler() {
-    		lock = this.checked;
-    		$$invalidate(1, lock);
+    	const axisInputs = {
+    		xMin: null,
+    		xMax: null,
+    		yMin: null,
+    		yMax: null
+    	};
+
+    	function prep(node, key) {
+    		node.value = axis[key];
+    		axisInputs[key] = node;
+
+    		function change(e) {
+    			$$invalidate(0, axis[key] = +e.target.value, axis);
+    		}
+
+    		node.addEventListener("change", change);
+
+    		return {
+    			destroy() {
+    				node.removeEventListener("change", change);
+    			}
+    		};
     	}
 
-    	const click_handler = () => $$invalidate(0, show = !show);
-    	return [show, lock, input4_change_handler, click_handler];
+    	onMount(() => {
+    		axis.subscribe(v => {
+    			for (var key in v) axisInputs[key].value = v[key];
+    		});
+    	});
+
+    	const change_handler = e => $$invalidate(0, axis.locked = e.target.checked, axis);
+    	const click_handler = () => $$invalidate(1, show = !show);
+    	return [axis, show, prep, change_handler, click_handler];
     }
 
     class SettingsMenu extends SvelteComponent {
+    	constructor(options) {
+    		super();
+    		init(this, options, instance$2, create_fragment$2, safe_not_equal, {});
+    	}
+    }
+
+    /* v2\components\Colors.svelte generated by Svelte v3.43.0 */
+
+    function get_each_context(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[2] = list[i];
+    	return child_ctx;
+    }
+
+    // (20:8) {#each nums as t}
+    function create_each_block(ctx) {
+    	let div;
+    	let div_data_num_value;
+
+    	return {
+    		c() {
+    			div = element("div");
+    			attr(div, "data-num", div_data_num_value = /*t*/ ctx[2].toPrecision(3));
+    			attr(div, "class", "svelte-1ke7fka");
+    		},
+    		m(target, anchor) {
+    			insert(target, div, anchor);
+    		},
+    		p(ctx, dirty) {
+    			if (dirty & /*nums*/ 1 && div_data_num_value !== (div_data_num_value = /*t*/ ctx[2].toPrecision(3))) {
+    				attr(div, "data-num", div_data_num_value);
+    			}
+    		},
+    		d(detaching) {
+    			if (detaching) detach(div);
+    		}
+    	};
+    }
+
+    function create_fragment$1(ctx) {
+    	let div2;
+    	let div0;
+    	let t;
+    	let div1;
+    	let each_value = /*nums*/ ctx[0];
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	return {
+    		c() {
+    			div2 = element("div");
+    			div0 = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			t = space();
+    			div1 = element("div");
+    			attr(div0, "class", "labels svelte-1ke7fka");
+    			attr(div1, "class", "bar svelte-1ke7fka");
+    			set_style(div1, "background", "linear-gradient(to bottom, " + /*gradient*/ ctx[1] + ")");
+    			attr(div2, "class", "container svelte-1ke7fka");
+    		},
+    		m(target, anchor) {
+    			insert(target, div2, anchor);
+    			append(div2, div0);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div0, null);
+    			}
+
+    			append(div2, t);
+    			append(div2, div1);
+    		},
+    		p(ctx, [dirty]) {
+    			if (dirty & /*nums*/ 1) {
+    				each_value = /*nums*/ ctx[0];
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div0, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+
+    			if (dirty & /*gradient*/ 2) {
+    				set_style(div1, "background", "linear-gradient(to bottom, " + /*gradient*/ ctx[1] + ")");
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d(detaching) {
+    			if (detaching) detach(div2);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+    }
+
+    function instance$1($$self, $$props, $$invalidate) {
+    	let nums = [], gradient = "red";
+    	color.thresholds.subscribe(v => $$invalidate(0, nums = v));
+
+    	color.strings.subscribe(cs => {
+    		let arr = [], perc;
+    		const len = cs.length;
+
+    		for (var t = 0; t < len - 1; t++) {
+    			perc = (t + 1) * 100 / len;
+    			arr.push(`${cs[t]} ${perc}%, ${cs[t + 1]} ${perc}%`);
+    		}
+
+    		$$invalidate(1, gradient = arr.join(', '));
+    	});
+
+    	return [nums, gradient];
+    }
+
+    class Colors extends SvelteComponent {
     	constructor(options) {
     		super();
     		init(this, options, instance$1, create_fragment$1, safe_not_equal, {});
@@ -2443,14 +2644,16 @@ var app = (function () {
     	let t3;
     	let settingsmenu;
     	let t4;
-    	let div;
+    	let colors;
     	let t5;
-    	let br0;
+    	let div;
     	let t6;
+    	let br0;
     	let t7;
-    	let br1;
     	let t8;
+    	let br1;
     	let t9;
+    	let t10;
     	let br2;
     	let current;
     	let mounted;
@@ -2458,6 +2661,7 @@ var app = (function () {
     	varsmenu = new VarsMenu({});
     	canvas = new Canvas({});
     	settingsmenu = new SettingsMenu({});
+    	colors = new Colors({});
 
     	return {
     		c() {
@@ -2470,14 +2674,16 @@ var app = (function () {
     			t3 = space();
     			create_component(settingsmenu.$$.fragment);
     			t4 = space();
+    			create_component(colors.$$.fragment);
+    			t5 = space();
     			div = element("div");
-    			t5 = text(/*frame*/ ctx[0]);
+    			t6 = text(/*frame*/ ctx[0]);
     			br0 = element("br");
-    			t6 = space();
-    			t7 = text(/*particles*/ ctx[1]);
+    			t7 = space();
+    			t8 = text(/*particles*/ ctx[1]);
     			br1 = element("br");
-    			t8 = space();
-    			t9 = text(/*computation*/ ctx[2]);
+    			t9 = space();
+    			t10 = text(/*computation*/ ctx[2]);
     			br2 = element("br");
     			attr(button, "class", "svelte-3v93ht");
     			attr(div, "class", "info svelte-3v93ht");
@@ -2491,14 +2697,16 @@ var app = (function () {
     			insert(target, t3, anchor);
     			mount_component(settingsmenu, target, anchor);
     			insert(target, t4, anchor);
+    			mount_component(colors, target, anchor);
+    			insert(target, t5, anchor);
     			insert(target, div, anchor);
-    			append(div, t5);
-    			append(div, br0);
     			append(div, t6);
+    			append(div, br0);
     			append(div, t7);
-    			append(div, br1);
     			append(div, t8);
+    			append(div, br1);
     			append(div, t9);
+    			append(div, t10);
     			append(div, br2);
     			current = true;
 
@@ -2508,21 +2716,23 @@ var app = (function () {
     			}
     		},
     		p(ctx, [dirty]) {
-    			if (!current || dirty & /*frame*/ 1) set_data(t5, /*frame*/ ctx[0]);
-    			if (!current || dirty & /*particles*/ 2) set_data(t7, /*particles*/ ctx[1]);
-    			if (!current || dirty & /*computation*/ 4) set_data(t9, /*computation*/ ctx[2]);
+    			if (!current || dirty & /*frame*/ 1) set_data(t6, /*frame*/ ctx[0]);
+    			if (!current || dirty & /*particles*/ 2) set_data(t8, /*particles*/ ctx[1]);
+    			if (!current || dirty & /*computation*/ 4) set_data(t10, /*computation*/ ctx[2]);
     		},
     		i(local) {
     			if (current) return;
     			transition_in(varsmenu.$$.fragment, local);
     			transition_in(canvas.$$.fragment, local);
     			transition_in(settingsmenu.$$.fragment, local);
+    			transition_in(colors.$$.fragment, local);
     			current = true;
     		},
     		o(local) {
     			transition_out(varsmenu.$$.fragment, local);
     			transition_out(canvas.$$.fragment, local);
     			transition_out(settingsmenu.$$.fragment, local);
+    			transition_out(colors.$$.fragment, local);
     			current = false;
     		},
     		d(detaching) {
@@ -2534,6 +2744,8 @@ var app = (function () {
     			if (detaching) detach(t3);
     			destroy_component(settingsmenu, detaching);
     			if (detaching) detach(t4);
+    			destroy_component(colors, detaching);
+    			if (detaching) detach(t5);
     			if (detaching) detach(div);
     			mounted = false;
     			dispose();

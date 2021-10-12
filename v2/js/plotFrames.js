@@ -77,12 +77,16 @@ complexFunction.subscribe(v => {settings.func = v; computeFrames()});
 color.all.subscribe(({number: n, thresholds: t, strings: s}) => {
     var c, i;
     thresholds = t;
+    console.log("all sub", t);
     frames = frames.map(f => {
         const r = new Array(n);
         for(c=0; c<n; c++) r[c] = [];
-        for(c=0; c<n; c++) {
+        var ci;
+        for(c=f.length-1; c>=0; c--) {
             for(i=f[c].length-1; i>=0; i--) {
-                r[clr_index(f[c][i].s)].push(f[c][i])
+                ci = clr_index(f[c][i].s);
+                if(ci >= n) console.log(c, i, f[c][i], ci);
+                r[ci].push(f[c][i]);
             }
         }
         return r;
