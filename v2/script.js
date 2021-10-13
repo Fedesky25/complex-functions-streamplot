@@ -714,7 +714,6 @@ var app = (function () {
     const clr_thresholds = derived([clr_num, clr_factor], ([n, f]) => {
         const res = new Array(n+1), mul = Math.pow(100, f/10);
         for(var i=n; i >= 0; i--) res[i] = ( n / i - 1) * mul;
-        console.log('thr', res);
         return res;
     });
     const clr_strings = derived(clr_num, n => {
@@ -728,7 +727,7 @@ var app = (function () {
     });
     const clr_all = derived(
         [clr_thresholds, clr_strings, clr_num, clr_factor],
-        ([t, s, n, f]) => (console.log('all', t), {number: n, factor: f, strings: s, thresholds: t})
+        ([t, s, n, f]) => ({number: n, factor: f, strings: s, thresholds: t})
     );
     const color = Object.freeze({
         number: clr_num,
@@ -835,7 +834,6 @@ var app = (function () {
     color.all.subscribe(({number: n, thresholds: t, strings: s}) => {
         var c, i;
         thresholds = t;
-        console.log("all sub", t);
         frames$1 = frames$1.map(f => {
             const r = new Array(n);
             for(c=0; c<n; c++) r[c] = [];

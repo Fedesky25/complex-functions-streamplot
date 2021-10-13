@@ -77,7 +77,6 @@ complexFunction.subscribe(v => {settings.func = v; computeFrames()});
 color.all.subscribe(({number: n, thresholds: t, strings: s}) => {
     var c, i;
     thresholds = t;
-    console.log("all sub", t);
     frames = frames.map(f => {
         const r = new Array(n);
         for(c=0; c<n; c++) r[c] = [];

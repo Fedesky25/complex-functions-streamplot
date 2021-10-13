@@ -13,7 +13,7 @@
 </script>
 
 <div class="container" class:show>
-    <div>
+    <!-- <div>
         <h2>ViewBox</h2>
         <div class="spaced">
             <h3 class="center">x axis</h3>
@@ -34,9 +34,9 @@
             <input type="checkbox">
         </div>
         <button class="reset" on:click={reset}>Reset viewbox</button>
-    </div>
+    </div> -->
     <div>
-        <h2>Generic</h2>
+        <h2>Settings</h2>
         <div class="spaced">
             <h3>pixel gap</h3>
             <input type="number" use:forceBounds={{min: 2, max: 20, store: px_gap}}>
@@ -57,6 +57,7 @@
             <h3>Color multiplier</h3>
             <input type="number" use:forceBounds={{min: -10, max: 10, store: clr_factor, mustBeInt: false}}>
         </div>
+        <button class="reset" on:click={reset}>Reset viewbox</button>
     </div>
 </div>
 <button class="toggle-btn" class:rotated={show} on:click={() => show = !show}>
@@ -84,9 +85,11 @@
         right: 0;
         z-index: 20;
 
-        display: grid;
+        /* display: grid;
         grid-template-columns: 30ch 30ch;
-        column-gap: 4rem;
+        column-gap: 4rem; */
+
+        width: 35ch;
 
         padding: 1.5rem;
         background-color: var(--bg);
@@ -106,10 +109,10 @@
         font-weight: 400;
         color: #e3e3e3;
     }
-    h3.center {
+    /* h3.center {
         text-align: center;
         margin-bottom: .5rem;
-    }
+    } */
     .bracket {
         font-style: normal;
         margin-left: .05ch;
@@ -121,7 +124,7 @@
     input {
         width: 8ch;
     }
-    input + input { margin-left: .6ch; }
+    /* input + input { margin-left: .6ch; } */
     .spaced {
         display: flex;
         align-items: center;

@@ -98,7 +98,6 @@ const clr_factor = writable_init(0);
 const clr_thresholds = derived([clr_num, clr_factor], ([n, f]) => {
     const res = new Array(n+1), mul = Math.pow(100, f/10);
     for(var i=n; i >= 0; i--) res[i] = ( n / i - 1) * mul;
-    console.log('thr', res);
     return res;
 });
 const clr_strings = derived(clr_num, n => {
@@ -113,7 +112,7 @@ const clr_strings = derived(clr_num, n => {
 });
 const clr_all = derived(
     [clr_thresholds, clr_strings, clr_num, clr_factor],
-    ([t, s, n, f]) => (console.log('all', t), {number: n, factor: f, strings: s, thresholds: t})
+    ([t, s, n, f]) => ({number: n, factor: f, strings: s, thresholds: t})
 );
 export const color = Object.freeze({
     number: clr_num,
