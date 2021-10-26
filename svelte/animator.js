@@ -63,7 +63,7 @@ export function setCanvas(node) {
 
 /**@param {Complex} c */
 function draw(c) {
-    ctx.fillRect(
+    ctx.rect(
         (c.real - xMin)*$scaleX - .5,
         (yMax - c.imag)*$scaleY - .5,
         1, 1,
@@ -94,12 +94,15 @@ function frame() {
     var low, high;
     for(t=0; t<$clr_num; t++) {
         ctx.fillStyle = $clr_strings[t];
+        ctx.beginPath();
         low = $clr_thresholds[t+1];
         high = $clr_thresholds[t];
         for(i=0; i<len; i++) {
-            if(speeds[i] < high && speeds[i] >= low)
+            if(speeds[i] < high && speeds[i] >= low) {
                 draw(currents[i]);
+            }
         }
+        ctx.fill();
     }
     frame_request = requestAnimationFrame(frame);
     time += performance.now() - start;

@@ -13,6 +13,8 @@
      * @returns 
      */
     function bounds(node, options) {
+        node.min = options.min;
+        node.max = options.max;
         node.value = options.store.initial;
         function change() {
             var v = Number(node.value);
