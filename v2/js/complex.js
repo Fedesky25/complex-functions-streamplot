@@ -65,10 +65,10 @@ export default class Complex {
     }
     /**@param {Complex} c */
     div(c) {
-        var m2 = c.real*c.real + c.imag*c.imag;
-        var r = (this.real*c.real + this.imag*c.imag) / m2;
-        var i = (this.imag*c.real - this.real*c.imag) / m2;
-        this.real = r;
+        var cr = c.real + c.imag/c.real*c.imag;
+        var ci = c.imag + c.real/c.imag*c.imag;
+        var i = this.imag/cr - this.real/ci;
+        this.real = this.real/cr + this.imag/ci;
         this.imag = i;
         return this;
     }
@@ -146,9 +146,9 @@ export default class Complex {
         return this;
     }
     toReciprocal() {
-        var m2 = this.real*this.real + this.imag*this.imag;
-        this.real /= m2;
-        this.imag = -this.imag/m2;
+        var r = this.real;
+        this.real = 1/(r + this.imag/r*this.imag);
+        this.imag = -1/(this.imag + r/this.imag*r);
         return this;
     }
     toString() {
