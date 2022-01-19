@@ -1,6 +1,6 @@
 {
   "name": "streamfield",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Streamfield visualization of complex functions",
   "main": "none",
   "type": "module",
@@ -17,5 +17,9 @@
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-svelte": "^7.1.0",
     "svelte": "^3.43.0"
+  },
+  "dependencies": {
+    "canvas": "^2.9.0",
+    "gif-encoder-2": "^1.0.5"
   }
 }
