@@ -1,5 +1,5 @@
 import Complex from '../v2/js/complex.js';
-import { linearScale } from './linear.js';
+import { linearScale } from './linear.mjs';
 import { writeFile } from 'fs/promises';
 import { stdout } from 'process';
 

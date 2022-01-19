@@ -9,7 +9,7 @@
  * Constructs a new linear scale
  * @returns {linearScale}
  */
-export function linearScale() {
+function linearScale() {
     var from_min = 0;
     var from_dim = 1;
     var to_min = 0;
@@ -27,3 +27,5 @@ export function linearScale() {
     }
     return compute;
 }
+
+module.exports = { linearScale }

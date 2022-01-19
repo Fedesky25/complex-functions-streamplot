@@ -1,4 +1,4 @@
-import { stdout } from 'process';
+const { stdout } = require("process");
 
 function display(n) {
     stdout.cursorTo(n);
@@ -7,7 +7,7 @@ function display(n) {
     stdout.write(n+'%');
 }
 
-export default function progress(times, fn) {
+function progress(times, fn) {
     let i;
     let j;
     let cursor = 0;
@@ -19,11 +19,13 @@ export default function progress(times, fn) {
         for(j=0; j<inner; j++) fn();
         display(++cursor);
     }
+    if(outer) inner -= 1;
     outer = 100 - outer;
-    inner -= 1;
     for(i=0; i<outer; i++) {
         for(j=0; j<inner; j++) fn();
         display(++cursor);
     }
     stdout.write("\x1B[?25h\n");
 }
+
+module.exports = progress;

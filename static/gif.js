@@ -1,13 +1,13 @@
-import Complex from '../v2/js/complex.js';
-import { linearScale } from './linear.js';
-import { writeFile } from 'fs/promises';
-import progress from './progress.js';
-import { createCanvas } from 'canvas';
-import gifEncoder2 from 'gif-encoder-2';
+const Complex = require('./Complex.js');
+const { linearScale } = require('./linear.js');
+const { writeFile } = require('fs/promises');
+const progress = require("./progress");
+const GIFEncoder = require("gif-encoder-2");
+const { createCanvas } = require("canvas");
 
 
 const FRAMES = 120;
-const PARTICLES = 8000;
+const PARTICLES = 10;
 const TAU = 3;
 
 /**
@@ -18,7 +18,7 @@ const TAU = 3;
     y.eq(x).mul(x).exponentiate();
 }
 
-const gif = new gifEncoder2(600, 400, "neuquant", false, FRAMES);
+const gif = new GIFEncoder(600, 400, "neuquant", false, FRAMES);
 gif.setFrameRate(60);
 gif.setRepeat(0);
 
@@ -44,12 +44,12 @@ function frame() {
         speed = Math.sqrt(dz.real*dz.real + dz.imag*dz.imag);
         factor = Math.expm1(-speed/TAU) // [-1,0]
         dz.normalize().mul_r(-0.01*factor);
-        z[i].add(y);
+        z[i].add(dz);
 
         ctx.fillStyle = "hsl("+240*(1+factor)+",55%,55%)";
         ctx.fillRect(xScale(z[i].real), yScale(z[i].imag), 1, 1);
-        gif.addFrame(ctx);
     }
+    gif.addFrame(ctx);
 }
 
 gif.start();
