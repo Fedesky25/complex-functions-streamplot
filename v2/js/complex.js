@@ -151,6 +151,12 @@ export default class Complex {
         this.imag = -1/(this.imag + r/this.imag*r);
         return this;
     }
+    normalize() {
+        var i = 1/Math.sqrt(1 + this.real/this.imag*this.real/this.imag)
+        this.real = 1/Math.sqrt(1 + this.imag/this.real*this.imag/this.real);
+        this.imag = i;
+        return this;
+    }
     toString() {
         if(this.real == 0) return this.imag ? nf(this.imag)+'i' : '0';
         if(this.imag == 0) return nf(this.real);
@@ -167,5 +173,5 @@ export default class Complex {
     static ReIm(real, imag) { return new Complex(real, imag) }
     static ModArg(mod, arg) { return new Complex(mod * Math.cos(arg), mod * Math.sin(arg)) }
 }
-window.Complex = Complex;
+if(typeof window !== "undefined") Object.defineProperty(window, "Complex", {value: Complex});
 function nf(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(3) } 
