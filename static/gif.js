@@ -4,28 +4,37 @@ const { writeFile } = require('fs/promises');
 const progress = require("./progress");
 const GIFEncoder = require("gif-encoder-2");
 const { createCanvas } = require("canvas");
+const createConcurrentEncoder = require("./ConcurrentEncoder");
 
 
 const FRAMES = 180;
-const PARTICLES = 12000;
+const PARTICLES = 20000;
 const TAU = 3;
 const CLR_NUM = 8;
 
-const WIDTH = 900; // 3440
-const HEIGHT = 600; // 1440
+const WIDTH = 1920; // 3440
+const HEIGHT = 1080; // 1440
 
+
+const a = new Complex(0,-1);
 /**
  * @param {Complex} x 
  * @param {Complex} y 
  */
  function f(x, y) {
-    y.eq(x).mul(x).exponentiate();
+    y.eq(x).mul(x).add(a);
 }
 
 
 const rand = (min, max) => Math.random()*(max-min)+min;
 const xScale = linearScale().domain(-3,3).range(0,WIDTH);
 const yScale = linearScale().domain(-2,2).range(HEIGHT,0);
+
+/**@param {number} ms */
+function displayTime(ms) {
+    if(ms < 1000) return ms.toPrecision(4) + " ms";
+    else return (ms*1e-3).toPrecision(4) + " s";
+}
 
 /**@returns {Any[][][]} */
 function newFrames() {
@@ -68,7 +77,7 @@ function particle() {
 console.log("Particle motion:");
 start = performance.now();
 progress(PARTICLES, particle);
-console.log("Time elapsed: "+(performance.now()-start).toPrecision(3)+" ms");
+console.log("Time elapsed: "+displayTime(performance.now()-start));
 
 // const dz = new Complex();
 // /**@type {Complex[]} */
@@ -90,13 +99,13 @@ console.log("Time elapsed: "+(performance.now()-start).toPrecision(3)+" ms");
 // progress(FRAMES, frame);
 // console.log("Time elapsed: "+(performance.now()-start).toPrecision(3)+" ms");
 
+// const gif = new GIFEncoder(WIDTH, HEIGHT, "neuquant", false, FRAMES);
+// gif.setFrameRate(60);
+// gif.setRepeat(0);
+
 const ctx = createCanvas(WIDTH, HEIGHT).getContext('2d');
 ctx.fillStyle = "#111";
 ctx.fillRect(0,0,WIDTH,HEIGHT);
-
-const gif = new GIFEncoder(WIDTH, HEIGHT, "neuquant", false, FRAMES);
-gif.setFrameRate(60);
-gif.setRepeat(0);
 
 function paint(fi) {
     ctx.fillStyle = "#1114";
@@ -110,16 +119,24 @@ function paint(fi) {
         for(j=frame[i].length-1; j>0; j-=2) ctx.rect(frame[i][j-1], frame[i][j], 1, 1);
         ctx.fill();
     }
-    gif.addFrame(ctx);
+    return ctx.getImageData(0,0,WIDTH,HEIGHT).data;
 }
 
-console.log("Frames painting:");
-start = performance.now();
-gif.start();
-progress(FRAMES, paint);
-gif.finish();
-console.log("Time elapsed: "+((performance.now()-start)*1e-3).toPrecision(3)+" s");
-
-writeFile('./prova.gif', gif.out.getData())
+createConcurrentEncoder(4, WIDTH, HEIGHT, FRAMES)
+.then(({addFrame, getData}) => {
+    const f = i => addFrame(paint(i));
+    console.log("Frames painting:");
+    start = performance.now();
+    progress(FRAMES, f);
+    console.log("Time elapsed: "+displayTime(performance.now()-start));
+    console.log("GIF Encoding:")
+    start = performance.now();
+    return getData;
+})
+.then(data => {
+    console.log("Waited "+displayTime(performance.now()-start));
+    writeFile('./prova2.gif', data)
+})
+// writeFile('./prova.gif', gif.out.getData())
 .then(() => console.log("Done"))
 .catch(err => console.log(err));
