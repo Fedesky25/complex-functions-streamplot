@@ -1,8 +1,7 @@
 const Complex = require('./Complex.js');
 const { linearScale } = require('./linear.js');
 const { writeFile } = require('fs/promises');
-const progress = require("./progress");
-const GIFEncoder = require("gif-encoder-2");
+const { progress, msStamp } = require("./progress");
 const { createCanvas } = require("canvas");
 const createConcurrentEncoder = require("./ConcurrentEncoder");
 
@@ -29,12 +28,6 @@ const a = new Complex(0,-1);
 const rand = (min, max) => Math.random()*(max-min)+min;
 const xScale = linearScale().domain(-3,3).range(0,WIDTH);
 const yScale = linearScale().domain(-2,2).range(HEIGHT,0);
-
-/**@param {number} ms */
-function displayTime(ms) {
-    if(ms < 1000) return ms.toPrecision(4) + " ms";
-    else return (ms*1e-3).toPrecision(4) + " s";
-}
 
 /**@returns {Any[][][]} */
 function newFrames() {
@@ -74,10 +67,7 @@ function particle() {
     }
 }
 
-console.log("Particle motion:");
-start = performance.now();
-progress(PARTICLES, particle);
-console.log("Time elapsed: "+displayTime(performance.now()-start));
+progress("Particle motion calculation", PARTICLES, particle);
 
 // const dz = new Complex();
 // /**@type {Complex[]} */
@@ -119,22 +109,22 @@ function paint(fi) {
         for(j=frame[i].length-1; j>0; j-=2) ctx.rect(frame[i][j-1], frame[i][j], 1, 1);
         ctx.fill();
     }
-    return ctx.getImageData(0,0,WIDTH,HEIGHT).data;
 }
+
+progress("Prepaint", 20, i => paint(FRAMES-20+i));
 
 createConcurrentEncoder(4, WIDTH, HEIGHT, FRAMES)
 .then(({addFrame, getData}) => {
-    const f = i => addFrame(paint(i));
-    console.log("Frames painting:");
-    start = performance.now();
-    progress(FRAMES, f);
-    console.log("Time elapsed: "+displayTime(performance.now()-start));
-    console.log("GIF Encoding:")
+    progress("Painting frames", FRAMES, i => {
+        paint(i);
+        addFrame(ctx.getImageData(0,0,WIDTH,HEIGHT).data);
+    });
+    console.log("Further GIF Encoding...")
     start = performance.now();
     return getData;
 })
 .then(data => {
-    console.log("Waited "+displayTime(performance.now()-start));
+    console.log(" - Waited "+msStamp(performance.now()-start));
     writeFile('./prova2.gif', data)
 })
 // writeFile('./prova.gif', gif.out.getData())
