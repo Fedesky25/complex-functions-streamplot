@@ -73,25 +73,30 @@ module.exports = class Complex {
         return this;
     }
     /**
+     * Elevates itself to a complex number
      * @param {Complex} c complex power
      * @param {Number} [k=0] determines angle
      */
-    exp(c, k=0) {
-        return this.logarize(k).mul(c).exponentiate();
+    pow(c, k=0) {
+        return this.intoLog(k).mul(c).intoExp();
     }
     /**
+     * Elevates itself to a real power
      * @param {Complex} r real power
      * @param {Number} [k=0] determines angle
      */
-    exp_r(r, k=0) {
+    por_r(r, k=0) {
         var mod = Math.pow(this.real*this.real + this.imag*this.imag, r/2); 
         var arg = Math.atan2(this.imag, this.real) + k*2*Math.PI;
         this.real = mod * Math.cos(r * arg);
         this.imag = mod * Math.sin(r * arg);
         return this;
     }
-    /**@param {Number} n integer power */
-    exp_n(n) {
+    /**
+     * Evelevates itself to a integer power
+     * @param {Number} n integer power
+     */
+    pow_n(n) {
         if(n == 0) return this.becomes(1, 0);
         const real = this.real, imag = this.imag;
         var end = n, t;
@@ -99,20 +104,20 @@ module.exports = class Complex {
             end = -n;
             this.toReciprocal();
         }
-        for(var i=0; i<end; i++) {
+        for(var i=1; i<end; i++) {
             t = this.imag*real + this.real*imag;
             this.real = this.real*real - this.imag*imag;
             this.imag = t;
         }
         return this;
     }
-    exponentiate() {
+    intoExp() {
         var mod = Math.exp(this.real);
         this.real = mod * Math.cos(this.imag);
         this.imag = mod * Math.sin(this.imag);
         return this;
     }
-    logarize(k=0) {
+    intoLog(k=0) {
         var r = Math.log(this.real*this.real + this.imag*this.imag);
         var i = Math.atan2(this.imag, this.real) + k*2*Math.PI;
         this.real = r * .5;
@@ -152,8 +157,8 @@ module.exports = class Complex {
         return this;
     }
     normalize() {
-        var i = 1/Math.sqrt(1 + this.real/this.imag*this.real/this.imag)
-        this.real = 1/Math.sqrt(1 + this.imag/this.real*this.imag/this.real);
+        var i = Math.sign(this.imag)/Math.sqrt(1 + this.real/this.imag*this.real/this.imag)
+        this.real = Math.sign(this.real)/Math.sqrt(1 + this.imag/this.real*this.imag/this.real);
         this.imag = i;
         return this;
     }
