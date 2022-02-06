@@ -513,10 +513,10 @@ var app = (function () {
         }
         /**@param {Complex} c */
         div(c) {
-            var m2 = c.real*c.real + c.imag*c.imag;
-            var r = (this.real*c.real + this.imag*c.imag) / m2;
-            var i = (this.imag*c.real - this.real*c.imag) / m2;
-            this.real = r;
+            var cr = c.real + c.imag/c.real*c.imag;
+            var ci = c.imag + c.real/c.imag*c.imag;
+            var i = this.imag/cr - this.real/ci;
+            this.real = this.real/cr + this.imag/ci;
             this.imag = i;
             return this;
         }
@@ -594,9 +594,15 @@ var app = (function () {
             return this;
         }
         toReciprocal() {
-            var m2 = this.real*this.real + this.imag*this.imag;
-            this.real /= m2;
-            this.imag = -this.imag/m2;
+            var r = this.real;
+            this.real = 1/(r + this.imag/r*this.imag);
+            this.imag = -1/(this.imag + r/this.imag*r);
+            return this;
+        }
+        normalize() {
+            var i = 1/Math.sqrt(1 + this.real/this.imag*this.real/this.imag);
+            this.real = 1/Math.sqrt(1 + this.imag/this.real*this.imag/this.real);
+            this.imag = i;
             return this;
         }
         toString() {
@@ -615,7 +621,7 @@ var app = (function () {
         static ReIm(real, imag) { return new Complex(real, imag) }
         static ModArg(mod, arg) { return new Complex(mod * Math.cos(arg), mod * Math.sin(arg)) }
     }
-    window.Complex = Complex;
+    if(typeof window !== "undefined") Object.defineProperty(window, "Complex", {value: Complex});
     function nf(n) { return Number.isInteger(n) ? n.toString() : n.toPrecision(3) }
 
     const axis = (function(){
@@ -1764,7 +1770,7 @@ var app = (function () {
 
     /**@param {HTMLCanvasElement} node */
     function setCanvas(node) {
-        ctx = node.getContext('2d');
+        ctx = node.getContext('2d', {alpha: false});
         ctx.fillStyle = 'hsl(240, 6%, 15%)';
         ctx.fillRect(0, 0, 900, 600);
     }
@@ -1975,7 +1981,7 @@ var app = (function () {
     					listen(canvas, "mousedown", /*mousedown*/ ctx[7]),
     					listen(canvas, "mouseup", /*mouseup*/ ctx[8]),
     					listen(canvas, "mousemove", /*mousemove*/ ctx[6]),
-    					listen(canvas, "mousewheel", /*mousewheel*/ ctx[9]),
+    					listen(canvas, "wheel", /*wheel*/ ctx[9], { passive: true }),
     					action_destroyer(setCanvas.call(null, canvas))
     				];
 
@@ -2141,7 +2147,7 @@ var app = (function () {
     	}
 
     	/**@param {WheelEvent} e*/
-    	function mousewheel(e) {
+    	function wheel(e) {
     		if (!e.altKey) return;
     		let fact = e.deltaY > 0 ? 1.1 : 10 / 11;
     		axis.scale(fact);
@@ -2157,7 +2163,7 @@ var app = (function () {
     		mousemove,
     		mousedown,
     		mouseup,
-    		mousewheel
+    		wheel
     	];
     }
 

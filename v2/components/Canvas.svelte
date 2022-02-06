@@ -70,7 +70,7 @@
     }
 
     /**@param {WheelEvent} e*/
-    function mousewheel(e) {
+    function wheel(e) {
         if(!e.altKey) return;
         let fact = e.deltaY > 0 ? 1.1 : 10/11;
         axis.scale(fact)
@@ -83,7 +83,7 @@
         on:mousedown={mousedown}
         on:mouseup={mouseup}
         on:mousemove={mousemove}
-        on:mousewheel={mousewheel}
+        on:wheel|passive={wheel}
         use:setCanvas>
     </canvas>
     <div class="position" class:show={showPos}>{pos}</div>

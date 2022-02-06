@@ -16,7 +16,7 @@ plotFrames.subscribe(v => {
 
 /**@param {HTMLCanvasElement} node */
 export function setCanvas(node) {
-    ctx = node.getContext('2d');
+    ctx = node.getContext('2d', {alpha: false});
     ctx.fillStyle = 'hsl(240, 6%, 15%)';
     ctx.fillRect(0, 0, 900, 600);
 }

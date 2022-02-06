@@ -1,4 +1,4 @@
-module.exports = class Complex {
+class Complex {
     constructor(real=0, imag=0) {
         this.real = real;
         this.imag = imag;
@@ -165,3 +165,4 @@ module.exports = class Complex {
     static ReIm(real, imag) { return new Complex(real, imag) }
     static ModArg(mod, arg) { return new Complex(mod * Math.cos(arg), mod * Math.sin(arg)) }
 }
+module.exports = Complex;

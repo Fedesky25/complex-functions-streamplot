@@ -56,7 +56,7 @@ let dt; dt_e6.subscribe(v => dt = v * 1e-6);
 
 /**@param {HTMLCanvasElement} node */
 export function setCanvas(node) {
-    ctx = node.getContext('2d');
+    ctx = node.getContext('2d', {alpha: false});
     ctx.fillStyle = 'hsl(240, 6%, 15%)';
     ctx.fillRect(0, 0, w, h);
 }

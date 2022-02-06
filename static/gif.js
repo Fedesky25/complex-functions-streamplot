@@ -13,6 +13,7 @@ const CLR_NUM = 8;
 
 const WIDTH = 1920; // 3440
 const HEIGHT = 1080; // 1440
+const FILENAME = "./parabola.gif";
 
 
 const a = new Complex(0,-1);
@@ -93,7 +94,7 @@ progress("Particle motion calculation", PARTICLES, particle);
 // gif.setFrameRate(60);
 // gif.setRepeat(0);
 
-const ctx = createCanvas(WIDTH, HEIGHT).getContext('2d');
+const ctx = createCanvas(WIDTH, HEIGHT).getContext('2d', {alpha: false});
 ctx.fillStyle = "#111";
 ctx.fillRect(0,0,WIDTH,HEIGHT);
 
@@ -106,7 +107,7 @@ function paint(fi) {
     for(i=0; i<CLR_NUM; i++) {
         ctx.fillStyle = "hsl("+240*(1-i/(CLR_NUM-1))+",55%,55%)";
         ctx.beginPath();
-        for(j=frame[i].length-1; j>0; j-=2) ctx.rect(frame[i][j-1], frame[i][j], 1, 1);
+        for(j=frame[i].length-1; j>0; j-=2) ctx.rect(frame[i][j-1]-0.75, frame[i][j]-0.75, 1.5, 1.5);
         ctx.fill();
     }
 }
@@ -125,7 +126,7 @@ createConcurrentEncoder(4, WIDTH, HEIGHT, FRAMES)
 })
 .then(data => {
     console.log(" - Waited "+msStamp(performance.now()-start));
-    writeFile('./prova2.gif', data)
+    writeFile(FILENAME, data)
 })
 // writeFile('./prova.gif', gif.out.getData())
 .then(() => console.log("Done"))
